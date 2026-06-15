@@ -6,8 +6,10 @@ This chapter presents the quantitative and qualitative results of the two
 evaluation protocols described in Chapter~\ref{chap:Methodology}.
 Section~\ref{sec:res-f1} reports token-level F1 scores from the blind tag
 evaluation.  Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
-Section~\ref{sec:res-oss} compares the open-source models, and
-Section~\ref{sec:observations} summarises cross-cutting observations.
+Section~\ref{sec:res-oss} compares the open-source models,
+Section~\ref{sec:res-fullrun} discusses the full-corpus run with the
+best-performing configuration, and Section~\ref{sec:observations} summarises
+cross-cutting observations.
 
 %----------------------------------------------------------------------
 \section{Blind Tag Evaluation -- F1 Scores}
@@ -140,6 +142,39 @@ judge rankings.  Reasoning-style models~(\texttt{deepseek-r1:14b},
 \texttt{qwen3:14b}) outperform standard instruction-tuned models of similar
 size, suggesting that chain-of-thought training is beneficial even under
 zero-shot conditions.
+
+%----------------------------------------------------------------------
+\section{Full Run on the Complete Corpus}
+\label{sec:res-fullrun}
+%
+The benchmark study reported above is restricted to the 250-ticket annotated
+benchmark.  In a final step, the best-performing configuration identified on
+the benchmark~(\texttt{gpt-oss:20b}) is applied to the entire Amazone~Werke
+ticket corpus.  This full-corpus run serves two purposes: it produces a
+fully tagged dataset for downstream business analyses, and it allows
+qualitative inspection of model behaviour on out-of-benchmark ticket
+categories that were not part of the GS/BL/LB sample.
+
+\subsection{Throughput and Resource Consumption}
+%
+\textit{To be reported once the full run is complete.}  The relevant figures
+are wall-clock time per ticket, total GPU-hours, peak VRAM usage, and the
+fraction of tickets for which the model returned schema-conformant JSON on
+the first attempt versus those that required the post-hoc repair parser.
+
+\subsection{Distribution of Generated Tags}
+%
+\textit{To be reported once the full run is complete.}  A histogram of the
+117~approved tags across the full corpus will indicate which service
+categories dominate the overall ticket population and whether the
+distribution differs substantially from the stratified 250-ticket benchmark.
+
+\subsection{Qualitative Findings on Out-of-Benchmark Categories}
+%
+\textit{To be reported once the full run is complete.}  A random sample of
+tickets outside the three benchmark categories will be reviewed manually to
+assess whether the model degrades gracefully or fails systematically when
+the input lies outside the GS/BL/LB distribution it was tuned for.
 
 %----------------------------------------------------------------------
 \section{Observations}

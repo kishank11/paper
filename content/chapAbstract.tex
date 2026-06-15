@@ -10,8 +10,9 @@ in an industrial context.
 A preprocessing pipeline converts raw ticket files~(MSG, PDF, DOCX) into structured
 Markdown representations. A benchmark dataset of 250 manually annotated tickets is
 constructed from three ticket categories and used to evaluate ten LLM configurations,
-including both open-source models served via Ollama~(Gemma~3, Llama~3.1, DeepSeek-R1,
-Mistral, Qwen~2.5) and proprietary models~(GPT-4o, GPT-3.5-Turbo). Two complementary
+including both open-source models served via Ollama~(GPT-OSS~20B, Gemma~3, Gemma~4,
+Llama~3.1, Llama~3.2, DeepSeek-R1, Qwen~3) and proprietary models~(GPT-4o,
+GPT-3.5-Turbo). Two complementary
 evaluation protocols are applied: comparison against human-annotated ground-truth tags
 using F1-score, and an LLM-as-judge framework that scores tag usefulness and reasoning
 quality.

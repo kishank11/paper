@@ -2,252 +2,324 @@
 %
 \label{chap:CodeAppendix}
 %
-This appendix contains key code implementations from the thesis project. The complete source code is available in the project repository.
+This appendix contains the key code artefacts from the extraction and evaluation
+pipeline described in Chapter~\ref{chap:Methodology}.  Code is reproduced
+verbatim in shortened form; the complete source is available in the project
+repository.
 
-\section{Document Conversion Module}
+%----------------------------------------------------------------------
+\section{Ollama API Call}
+\label{sec:app-ollama-call}
 %
-\subsection{PDF Text Extraction}
-%
-The following code demonstrates PDF text extraction using PyMuPDF:
+The function \texttt{call\_ollama()} wraps the Ollama \texttt{/api/generate}
+endpoint.  Inference parameters are fixed across all models: a 128k context
+window~(\texttt{num\_ctx~=~131072}) accommodates the longest email threads,
+\texttt{num\_predict~=~4096} provides a generous output budget, and
+\texttt{temperature~=~0.2} produces deterministic, schema-conformant JSON
+output.
 
 \begin{verbatim}
-import fitz  # PyMuPDF
-import os
+import requests, json
 
-def extract_pdf_text(pdf_path):
-    """Extract text from PDF using PyMuPDF"""
-    text = ""
+OLLAMA_API = "http://ve-ds-nns-01:11434/api/generate"
+TIMEOUT    = 180  # seconds per request
+
+def call_ollama(model_name: str, prompt: str) -> str | None:
+    """
+    Send a generate request to Ollama and return the raw response text,
+    or None on any error.
+    """
     try:
-        doc = fitz.open(pdf_path)
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-    except Exception as e:
-        print(f"Error processing {pdf_path}: {e}")
-    return text
-
-# Usage
-pdf_text = extract_pdf_text("document.pdf")
-\end{verbatim}
-
-\section{Language Detection Module}
-%
-\subsection{Langdetect Integration}
-%
-Language detection using the langdetect library:
-
-\begin{verbatim}
-from langdetect import detect, LangDetectException
-
-def detect_language(text):
-    """Detect language of text"""
-    try:
-        language = detect(text)
-        return language
-    except LangDetectException:
-        return "unknown"
-
-# Usage
-text = "Dies ist ein deutscher Text."
-lang = detect_language(text)
-print(f"Detected language: {lang}")
-\end{verbatim}
-
-\section{Database Operations}
-%
-\subsection{SQLite Database Schema}
-%
-Creating and populating the document database:
-
-\begin{verbatim}
-import sqlite3
-
-def create_document_database(db_path):
-    """Create database for document metadata"""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS documents (
-            id INTEGER PRIMARY KEY,
-            file_name TEXT NOT NULL,
-            original_format TEXT,
-            jahr TEXT,
-            language TEXT,
-            processing_date TIMESTAMP,
-            content_length INTEGER
+        resp = requests.post(
+            OLLAMA_API,
+            json={
+                "model":  model_name,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "temperature": 0.2,
+                    "num_ctx":     131072,   # 128k input context
+                    "num_predict": 4096,     # output token budget
+                },
+            },
+            timeout=TIMEOUT,
         )
-    ''')
-    
-    conn.commit()
-    conn.close()
-
-# Usage
-create_document_database("documents.db")
+        resp.raise_for_status()
+        return resp.json().get("response", "")
+    except (requests.RequestException, ValueError) as exc:
+        print(f"  [ERROR] {model_name}: {exc}")
+        return None
 \end{verbatim}
 
-\subsection{Data Aggregation}
+%----------------------------------------------------------------------
+\section{Two-Call Protocol: Extraction and Tagging}
+\label{sec:app-two-call}
 %
-Aggregating document statistics:
+Each ticket is processed with two sequential API calls.  The first call
+extracts Problem, Solution, and entity references; the second call assigns
+tags from the approved taxonomy.  Separating the tasks reduced schema
+confusion errors in pilot tests and is consistent with the prompt design
+described in Section~\ref{sec:prompt-design}.
 
 \begin{verbatim}
-import sqlite3
-import pandas as pd
+EXTRACTION_PROMPT = """
+You are an expert service-ticket analyst for an agricultural machinery
+manufacturer.  Read the ticket below carefully and respond ONLY with a
+valid JSON object of the form:
 
-def aggregate_statistics(db_path):
-    """Aggregate document statistics by year"""
-    conn = sqlite3.connect(db_path)
-    
-    query = '''
-        SELECT jahr, original_format, COUNT(*) as count
-        FROM documents
-        GROUP BY jahr, original_format
-        ORDER BY jahr, count DESC
-    '''
-    
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    
-    return df
+{
+  "Problem":  "<one to two sentences describing the customer problem>",
+  "Solution": "<one to two sentences describing the resolution>",
+  "items": [
+    {"maschine": "[UX1234567]"},
+    {"artikel":  "[963005]"},
+    ...
+  ]
+}
 
-# Usage
-stats = aggregate_statistics("documents.db")
-print(stats)
+Reason step by step internally, but only output the final JSON.  Reply in
+English regardless of the input language.
+
+TICKET CONTENT:
+{content}
+"""
+
+TAGGING_PROMPT = """
+You are an expert ticket categorizer.  Generate 1-4 tags from the
+APPROVED TAG LIST that best describe the ticket.  Reply ONLY with a
+valid JSON object of the form:
+
+{
+  "tags": ["tag1", "tag2"],
+  "reasoning": {
+    "tag1": "why this tag applies",
+    "tag2": "why this tag applies"
+  }
+}
+
+APPROVED TAG LIST (117 tags):
+{tag_list}
+
+TICKET CONTENT:
+{content}
+"""
+
+def process_ticket(model_name: str, content: str, tag_list: str) -> dict:
+    """Run extraction and tagging calls and merge the two JSON results."""
+    op_raw   = call_ollama(model_name, EXTRACTION_PROMPT.format(content=content))
+    tag_raw  = call_ollama(model_name, TAGGING_PROMPT.format(
+                   content=content, tag_list=tag_list))
+    return {
+        "op":         safe_json_parse(op_raw),
+        "blind_tag":  safe_json_parse(tag_raw),
+    }
 \end{verbatim}
 
-\section{Visualization Module}
+%----------------------------------------------------------------------
+\section{Ticket Content Loading}
+\label{sec:app-content-loading}
 %
-\subsection{Matplotlib Chart Generation}
-%
-Creating analysis visualizations:
+For each benchmark row, all \texttt{.msg.md} files in the corresponding
+ticket folder are concatenated into a single context string.  Each file is
+preceded by a~\verb|[FILE: <name>]| header to preserve authorship and order
+within the email thread.
 
 \begin{verbatim}
-import matplotlib.pyplot as plt
-import pandas as pd
-
-def plot_format_distribution(data_dict):
-    """Create stacked bar chart of format distribution"""
-    fig, ax = plt.subplots(figsize=(14, 7))
-    
-    # Prepare data
-    years = sorted(data_dict.keys())
-    formats = set()
-    for year_data in data_dict.values():
-        formats.update(year_data.keys())
-    formats = sorted(list(formats))
-    
-    # Create stacked bars
-    bottom = [0] * len(years)
-    for fmt in formats:
-        values = [data_dict[year].get(fmt, 0) for year in years]
-        ax.bar(years, values, label=fmt, bottom=bottom)
-        bottom = [bottom[i] + values[i] for i in range(len(years))]
-    
-    ax.set_xlabel('Year')
-    ax.set_ylabel('Document Count')
-    ax.set_title('Document Format Distribution by Year')
-    ax.legend()
-    
-    plt.tight_layout()
-    plt.savefig('format_distribution.png', dpi=150)
-    plt.show()
-\end{verbatim}
-
-\section{Complete Processing Pipeline}
-%
-\subsection{End-to-End Example}
-%
-Complete processing example combining modules:
-
-\begin{verbatim}
-import os
 from pathlib import Path
 
-def process_document_collection(input_dir, output_dir, db_path):
-    """Complete document processing pipeline"""
-    
-    # Create database
-    create_document_database(db_path)
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    # Process all documents
-    for file_path in Path(input_dir).rglob("*"):
-        if file_path.is_file():
-            # Extract text based on format
-            if file_path.suffix.lower() == '.pdf':
-                text = extract_pdf_text(str(file_path))
-            else:
-                # Handle other formats
-                continue
-            
-            # Detect language
-            language = detect_language(text)
-            
-            # Store metadata
-            cursor.execute('''
-                INSERT INTO documents 
-                (file_name, original_format, language, processing_date)
-                VALUES (?, ?, ?, datetime('now'))
-            ''', (file_path.name, file_path.suffix, language))
-    
-    conn.commit()
-    conn.close()
-    
-    # Generate statistics and visualizations
-    stats = aggregate_statistics(db_path)
-    print(f"Processed {len(stats)} documents")
+ROOT = Path("markdown_documents")
 
-# Usage
-process_document_collection(
-    "input_documents/",
-    "output_markdown/",
-    "documents.db"
-)
+def load_ticket_content_from_md(parent_name: str, ticket_num: str) -> str:
+    """Concatenate every .msg.md file under the given ticket folder."""
+    ticket_dir = ROOT / parent_name / ticket_num
+    if not ticket_dir.is_dir():
+        return ""
+
+    parts: list[str] = []
+    for md_file in sorted(ticket_dir.glob("*.msg.md")):
+        try:
+            text = md_file.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        parts.append(f"[FILE: {md_file.name}]\n{text}")
+    return "\n\n".join(parts)
 \end{verbatim}
 
-\section{Jupyter Notebook Integration}
+%----------------------------------------------------------------------
+\section{Rule-based Pattern Extraction}
+\label{sec:app-regex}
 %
-The main analysis is performed in the \texttt{Analysis.ipynb} Jupyter notebook, which provides:
-
-\begin{itemize}
-    \item Interactive exploration of document statistics
-    \item Dynamic visualization generation
-    \item Memory monitoring and resource management
-    \item Comprehensive error handling and logging
-    \item Progress indicators for batch operations
-\end{itemize}
-
-The notebook integrates all modules and provides a user-friendly interface for analyzing document collections.
-
-\section{Dependencies and Requirements}
-%
-Key Python packages used:
-
-\begin{itemize}
-    \item \texttt{pymupdf}: PDF processing
-    \item \texttt{python-docx}: DOCX format handling
-    \item \texttt{langdetect}: Language detection
-    \item \texttt{pandas}: Data manipulation
-    \item \texttt{matplotlib}: Visualization
-    \item \texttt{sqlite3}: Database operations
-    \item \texttt{psutil}: System monitoring
-\end{itemize}
-
-Installation via pip:
+The regular expressions used in the hybrid pipeline~(Section~\ref{subsec:regex})
+target structured fields that follow predictable Amazone-internal conventions.
+Each pattern is anchored to surrounding context to avoid false positives.
 
 \begin{verbatim}
-pip install pymupdf python-docx langdetect pandas matplotlib psutil
+import re
+
+PATTERNS = {
+    "doc_category": re.compile(
+        r"\b(Gutschrift|Belastungsanzeige|Lagerbelastung)\b", re.IGNORECASE),
+    "maschine":     re.compile(r"\b(?:UX|CYA|ZA|UF)\d{6,}\b"),
+    "artikel":      re.compile(r"(?<=Art\.-?Nr\.?\s)\d{5,8}"),
+    "rma":          re.compile(r"\bRMA[-\s]?\d{4,}\b", re.IGNORECASE),
+    "ticket_ref":   re.compile(r"\bT\d{9}\b"),
+    "change_nr":    re.compile(r"\bCN\d{7,}\b"),
+}
+
+def extract_structured(text: str) -> dict[str, list[str]]:
+    """Return all matches per pattern, de-duplicated, order-preserving."""
+    out: dict[str, list[str]] = {}
+    for name, pattern in PATTERNS.items():
+        hits = pattern.findall(text)
+        seen: set[str] = set()
+        out[name] = [h for h in hits if not (h in seen or seen.add(h))]
+    return out
 \end{verbatim}
 
-\section{Configuration and Customization}
+%----------------------------------------------------------------------
+\section{Token-level F1 for Blind Tag Evaluation}
+\label{sec:app-f1}
 %
-The pipeline is highly customizable through:
+Tag F1 is computed at the word-token level after lower-casing.  Precision is
+the fraction of predicted tokens that appear in the ground truth; recall is
+the fraction of ground-truth tokens that appear in the prediction.
 
-\begin{itemize}
-    \item Configuration files specifying document types and formats
-    \item Database schema adjustments for additional metadata
-    \item Visualization customization through matplotlib parameters
-    \item Filter parameters for language and format selection
-    \item Process parameters for memory and performance tuning
-\end{itemize}
+\begin{verbatim}
+def tokenize_tags(tags: list[str]) -> set[str]:
+    """Lower-case, split on whitespace and underscore."""
+    tokens: set[str] = set()
+    for t in tags:
+        for tok in re.split(r"[\s_]+", t.lower().strip()):
+            if tok:
+                tokens.add(tok)
+    return tokens
+
+def f1_score(pred: list[str], gold: list[str]) -> tuple[float, float, float]:
+    p, g = tokenize_tags(pred), tokenize_tags(gold)
+    if not p and not g:
+        return 1.0, 1.0, 1.0
+    if not p or not g:
+        return 0.0, 0.0, 0.0
+    tp = len(p & g)
+    precision = tp / len(p)
+    recall    = tp / len(g)
+    f1 = 0.0 if (precision + recall) == 0 \
+              else 2 * precision * recall / (precision + recall)
+    return precision, recall, f1
+\end{verbatim}
+
+%----------------------------------------------------------------------
+\section{LLM-as-Judge Prompt}
+\label{sec:app-judge-prompt}
+%
+The judge prompt presents the ticket, the ground-truth annotation, and the
+candidate model's output, then asks GPT-4o to rate Tag Usefulness~(TU) and
+Reasoning Coherence~(RC) on a 1--5 Likert scale.
+
+\begin{verbatim}
+JUDGE_PROMPT = """
+You are an evaluator of an AI assistant's output for a service-ticket
+analysis task.  Compare the candidate output to the human-annotated
+ground truth and rate it on two dimensions on a 1-5 Likert scale.
+
+DEFINITIONS:
+  Tag Usefulness (TU):
+    1 = tags are wrong or irrelevant
+    3 = tags partially match the ticket meaning
+    5 = tags accurately describe the ticket, even if surface forms differ
+  Reasoning Coherence (RC):
+    1 = reasoning is absent or nonsensical
+    3 = reasoning partially justifies the chosen tags
+    5 = reasoning is precise and well grounded in the ticket text
+
+Respond ONLY with the JSON object:
+{"TU": <int 1-5>, "RC": <int 1-5>, "comment": "<one sentence>"}
+
+TICKET:
+{ticket}
+
+GROUND TRUTH TAGS:
+{gold_tags}
+
+CANDIDATE OUTPUT:
+{candidate}
+"""
+\end{verbatim}
+
+%----------------------------------------------------------------------
+\section{Pipeline Main Loop with Checkpointing}
+\label{sec:app-main-loop}
+%
+The main loop iterates over the benchmark CSV, dispatches each ticket to all
+configured models, and writes a checkpoint every~10~rows.  A one-second
+sleep prevents the GPU server from being overwhelmed by back-to-back calls.
+
+\begin{verbatim}
+import time, pandas as pd
+
+INPUT_FILE  = "tickets_validated_new.csv"
+OUTPUT_FILE = "final_25.csv"
+SAVE_EVERY  = 10
+
+MODELS = {
+    "gptoss":      "gpt-oss:20b",
+    "gemma4":      "gemma4:latest",
+    "llama3.1":    "llama3.1:8b",
+    "qwen3_14b":   "qwen3:14b",
+    "deepseek":    "deepseek-r1:14b",
+}
+
+def run_pipeline() -> None:
+    df = pd.read_csv(INPUT_FILE)
+    with open("approved_tags.txt", encoding="utf-8") as fh:
+        tag_list = fh.read()
+
+    for idx, row in df.iterrows():
+        content = load_ticket_content_from_md(
+            row["parent_name"], row["ticket_number"])
+
+        for prefix, model_name in MODELS.items():
+            if pd.notna(row.get(f"{prefix}_op")):
+                continue  # already processed, skip
+            result = process_ticket(model_name, content, tag_list)
+            df.at[idx, f"{prefix}_op"]        = json.dumps(result["op"])
+            df.at[idx, f"{prefix}_blind_tag"] = json.dumps(result["blind_tag"])
+
+        if (idx + 1) % SAVE_EVERY == 0:
+            df.to_csv(OUTPUT_FILE, index=False)
+            print(f"  [CHECKPOINT] saved at row {idx + 1}")
+
+        time.sleep(1)   # back off between rows
+
+    df.to_csv(OUTPUT_FILE, index=False)
+\end{verbatim}
+
+%----------------------------------------------------------------------
+\section{Dependencies}
+\label{sec:app-deps}
+%
+The extraction and evaluation pipeline relies on the following packages.
+All open-source LLMs are served by a separate Ollama instance, which is not
+listed as a Python dependency.
+
+\begin{verbatim}
+# requirements.txt (excerpt)
+pandas>=2.0
+requests>=2.31
+python-docx>=1.1        # DOCX extraction
+openpyxl>=3.1           # XLSX extraction
+pymupdf>=1.24           # PDF text extraction
+pymupdf4llm>=0.0.12     # PDF -> Markdown conversion
+extract-msg>=0.48       # Outlook .msg parsing
+openai>=1.30            # GPT-4o judge calls
+\end{verbatim}
+
+\noindent The corresponding Ollama models are pulled once with:
+
+\begin{verbatim}
+ollama pull gpt-oss:20b
+ollama pull gemma4:latest
+ollama pull llama3.1:8b
+ollama pull qwen3:14b
+ollama pull deepseek-r1:14b
+\end{verbatim}

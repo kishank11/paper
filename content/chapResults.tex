@@ -1,48 +1,77 @@
-\chapter{Results}
+\chapter{Results and Observations}
 %
 \label{chap:Results}
 %
-This chapter presents the quantitative and qualitative results of the two
+This chapter presents the quantitative and qualitative results of the
 evaluation protocols described in Chapter~\ref{chap:Methodology}.
 Section~\ref{sec:res-f1} reports token-level F1 scores from the blind tag
-evaluation.  Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
+evaluation against human annotations.
+Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
+Section~\ref{sec:res-semantic} analyses semantic similarity between model
+outputs and the ticket content.
 Section~\ref{sec:res-oss} compares the open-source models,
-Section~\ref{sec:res-fullrun} discusses the full-corpus run with the
-best-performing configuration, and Section~\ref{sec:observations} summarises
-cross-cutting observations.
+Section~\ref{sec:res-fullrun} discusses the full-corpus run, and
+Section~\ref{sec:observations} summarises cross-cutting observations.
 
 %----------------------------------------------------------------------
 \section{Blind Tag Evaluation -- F1 Scores}
 \label{sec:res-f1}
 %
-\subsection{Per-Category and Overall F1}
+\subsection{All Models vs Human Tags Baseline}
+\label{subsec:f1-all}
 %
-Table~\ref{tab:f1-results} summarises the token-level F1 scores for all ten
-model configurations across the three ticket categories.  All scores shown
-are macro-averaged over the 250~benchmark tickets.
+Table~\ref{tab:f1-results} summarises the token-level F1, Precision, Recall,
+and Accuracy scores for all fifteen model configurations evaluated against
+the human-annotated ground-truth tags.  All scores are macro-averaged over
+the 250~benchmark tickets.
 
 \begin{table}[htbp]
     \centering
-    \caption{Token-level F1 scores on the blind tag benchmark (macro-average).
+    \caption{Metric comparison: all models vs human tags baseline (Tags).
              Best result in each column is \textbf{bold}.}
     \label{tab:f1-results}
     \begin{tabular}{lcccc}
         \hline
-        \textbf{Model} & \textbf{GS} & \textbf{BL} & \textbf{LB} & \textbf{Overall} \\
+        \textbf{Model} & \textbf{F1 Score} & \textbf{Precision} & \textbf{Recall} & \textbf{Accuracy} \\
         \hline
-        gpt-oss:20b         & \textbf{0.412} & \textbf{0.384} & \textbf{0.342} & \textbf{0.393} \\
-        deepseek-r1:14b     & 0.385          & 0.362          & 0.321          & 0.368 \\
-        qwen3:14b           & 0.372          & 0.351          & 0.315          & 0.356 \\
-        gemma4:26b          & 0.364          & 0.342          & 0.302          & 0.345 \\
-        llama3.1:8b         & 0.351          & 0.328          & 0.284          & 0.331 \\
-        gemma4:latest       & 0.342          & 0.315          & 0.276          & 0.322 \\
-        gpt-4o              & 0.391          & 0.371          & 0.334          & 0.376 \\
-        gpt-4o-mini         & 0.365          & 0.348          & 0.298          & 0.348 \\
-        gpt-3.5-turbo       & 0.321          & 0.294          & 0.245          & 0.298 \\
-        llama3.2:3b         & 0.284          & 0.251          & 0.212          & 0.259 \\
+        gpt-5\_4-mini       & \textbf{0.3943} & \textbf{0.4457} & 0.3911          & 0.9362 \\
+        gpt-5.5             & 0.3822          & 0.4451          & 0.3819          & 0.9379 \\
+        gpt-4o-mini         & 0.3746          & 0.3899          & \textbf{0.4114} & 0.9285 \\
+        gptoss              & 0.3562          & 0.3759          & 0.4075          & 0.9218 \\
+        gemma4              & 0.3122          & 0.2627          & 0.4951          & 0.8889 \\
+        gpt-4o              & 0.3034          & 0.3290          & 0.3099          & 0.9302 \\
+        qwen3\_14b          & 0.2803          & 0.3430          & 0.2539          & \textbf{0.9412} \\
+        llama3.1            & 0.2712          & 0.2611          & 0.3249          & 0.9080 \\
+        qwen2.5             & 0.2660          & 0.3240          & 0.2488          & 0.9378 \\
+        gpt-3.5-turbo       & 0.2524          & 0.2746          & 0.2534          & 0.9105 \\
+        dolphin             & 0.2181          & 0.2230          & 0.3259          & 0.8821 \\
+        deepseek7b          & 0.2137          & 0.1985          & 0.2818          & 0.9089 \\
+        gemma7b             & 0.1980          & 0.1444          & 0.3809          & 0.8246 \\
+        llama3.2            & 0.1783          & 0.1523          & 0.2457          & 0.8881 \\
+        deepseek14          & 0.1644          & 0.1815          & 0.1849          & 0.8731 \\
         \hline
     \end{tabular}
 \end{table}
+
+Figure~\ref{fig:f1-table-screenshot} shows the complete metric comparison as
+produced by the evaluation pipeline.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/f1_human_tag_results.png}
+    \caption{Metric comparison of all models vs human tags baseline.
+             Models are sorted by descending F1 score.}
+    \label{fig:f1-table-screenshot}
+\end{figure}
+
+The results reveal several noteworthy patterns.  First, proprietary models
+(GPT-5.4-mini, GPT-5.5, GPT-4o-mini) occupy the top three positions,
+followed by the open-source GPTOSS model at rank~4 with an F1 of~0.3562.
+Second, \texttt{gemma4} achieves the highest recall~(0.4951) among all
+models but at the cost of low precision~(0.2627), indicating severe
+over-tagging.  Third, \texttt{qwen3\_14b} achieves the highest
+accuracy~(0.9412) but at the cost of low recall~(0.2539), suggesting a
+conservative tagging strategy.
 
 \subsection{Performance of Rule-based Extraction (RQ1)}
 \label{subsec:regex-res}
@@ -71,77 +100,256 @@ The near-perfect precision for structured fields confirms that LLM inference
 is not required for these elements, allowing the LLM budget to be spent
 entirely on narrative reasoning.
 
-\subsection{Over- and Under-tagging Analysis}
+\subsection{LLM Tagging Profiles}
+\label{subsec:tagging-profiles}
 %
-Figure~\ref{fig:over-under} illustrates the over- and under-tagging rates
-for each model.  Over-tagging~(high false-positive rate) is the dominant
-error pattern: most models produce more tags than the human annotator, with
-the smallest models~(\texttt{llama3.2} and \texttt{gpt-3.5-turbo}) showing
-the highest over-tagging rates above~60\,\%.  Larger models are generally
-more conservative, aligning more closely with the ground-truth tag count.
+Table~\ref{tab:tagging-profiles} characterises each model's tagging behaviour
+in terms of volume and diversity.  Total tags refers to the number of tags
+produced across all processed tickets; unique tags indicates how many distinct
+tag strings the model generated; and average tags per ticket is the mean tag
+count per ticket.
+
+\begin{table}[htbp]
+    \centering
+    \caption{LLM tagging profiles: volume and diversity of generated tags.}
+    \label{tab:tagging-profiles}
+    \begin{tabular}{lrrrr}
+        \hline
+        \textbf{Model} & \textbf{Total Tags} & \textbf{Unique Tags} & \textbf{Tickets} & \textbf{Avg Tags/Ticket} \\
+        \hline
+        gemma3 (12b)      & 1884 &  71 & 236 & 7.98 \\
+        llama3.2 (3b)     & 1708 &  95 & 214 & 7.98 \\
+        gemma (7b)        & 1768 &  65 & 222 & 7.96 \\
+        gpt-oss (20b)     & 1670 &  95 & 210 & 7.95 \\
+        llama3.1 (8b)     & 1532 &  46 & 192 & 7.98 \\
+        deepseek-r1 (7b)  & 1610 & 182 & 202 & 7.97 \\
+        deepseek-r1 (14b) & 1498 & 161 & 188 & 7.97 \\
+        mistral (7b)      & 1654 & 148 & 208 & 7.95 \\
+        qwen2.5 (7b)      & 1400 &  29 & 176 & 7.95 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=\textwidth]{figures/over_under_tagging.pdf}
-    \caption{Over-tagging and under-tagging rates per model.
-             Bars above the dashed line denote over-tagging; bars below denote
-             under-tagging.  \textit{(Figure to be inserted.)}}
-    \label{fig:over-under}
+    \includegraphics[width=0.85\textwidth]{figures/llm_tagging_profiles.png}
+    \caption{LLM tagging profiles as produced by the evaluation pipeline.}
+    \label{fig:tagging-profiles}
 \end{figure}
+
+All models converge on approximately eight tags per ticket, suggesting that
+the prompt design effectively constrains tag count.  However, the number of
+\textit{unique} tags varies dramatically: \texttt{qwen2.5} produces only~29
+distinct tags, while \texttt{deepseek-r1~(7b)} generates~182.  A high unique
+tag count signals that the model invents ad hoc labels rather than reusing
+the approved taxonomy.
 
 %----------------------------------------------------------------------
 \section{LLM-as-Judge Evaluation}
 \label{sec:res-judge}
 %
-\subsection{Tag Usefulness and Reasoning Coherence}
+\subsection{Item Extraction Baseline (GPT-5.5 as Judge)}
+\label{subsec:item-extraction}
 %
-Table~\ref{tab:judge-results} presents the mean LLM-as-judge scores for all
-models.  Tag Usefulness~(TU) and Reasoning Coherence~(RC) are both on a 1--5
-Likert scale; the composite score~$J$ is their arithmetic mean.
+As a complementary evaluation, GPT-5.5 was used as a judge to assess how
+well each model's extracted items (machine numbers, article numbers, etc.)
+match the ticket content.  The metric is \textit{Average Target Hit Rate}:
+the fraction of ground-truth items the model correctly identifies.
 
 \begin{table}[htbp]
     \centering
-    \caption{LLM-as-judge scores (mean over 250 tickets, 1--5 scale).
-             Best result per column is \textbf{bold}.}
-    \label{tab:judge-results}
-    \begin{tabular}{lccc}
+    \caption{Item extraction: average target hit rate (GPT-5.5 as baseline judge).}
+    \label{tab:item-extraction}
+    \begin{tabular}{clc}
         \hline
-        \textbf{Model} & $\overline{TU}$ & $\overline{RC}$ & $J$ \\
+        \textbf{Rank} & \textbf{Model} & \textbf{Avg Target Hit Rate} \\
         \hline
-        gpt-oss:20b         & \textbf{4.32} & \textbf{4.15} & \textbf{4.24} \\
-        gpt-4o              & 4.15 & 4.28 & 4.22 \\
-        deepseek-r1:14b     & 3.94 & 4.02 & 3.98 \\
-        qwen3:14b           & 3.82 & 3.88 & 3.85 \\
-        llama3.1:8b         & 3.65 & 3.51 & 3.58 \\
-        gemma4:26b          & 3.58 & 3.42 & 3.50 \\
-        gpt-3.5-turbo       & 3.12 & 3.05 & 3.09 \\
-        llama3.2:3b         & 2.45 & 2.12 & 2.29 \\
+        1 & GPT-5.4 MINI    & 0.7737 \\
+        2 & GPT-4o MINI     & 0.6169 \\
+        3 & GPTOSS          & 0.5110 \\
+        4 & QWEN3 14B       & 0.4603 \\
+        5 & ITEM EXTRACTION (human) & 0.4313 \\
+        6 & LLAMA3.1        & 0.3990 \\
+        7 & GEMMA4          & 0.3989 \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{Agreement Between F1 and Judge Rankings}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/item_extraction_baseline.png}
+    \caption{Item extraction ranking with GPT-5.5 as judge.  The
+             \textsc{Item Extraction} row represents the human annotator's
+             performance relative to GPT-5.5.}
+    \label{fig:item-extraction}
+\end{figure}
+
+Notably, three LLM models (GPT-5.4~MINI, GPT-4o~MINI, GPTOSS) outperform
+the human annotator at item extraction.  This suggests that LLMs can surface
+structured references (machine serials, article codes) that human annotators
+overlook when manually scanning long email threads.
+
+\subsection{Tag Usefulness and Reasoning Quality (GPT-5.5 as Judge)}
+\label{subsec:judge-composite}
 %
-A Spearman rank-correlation coefficient is computed between the F1 ranking
-and the $J$ ranking to assess whether the two protocols converge on the same
-conclusions.  A high positive correlation would confirm that blind tag F1 is
-a reliable proxy for the human-perceived quality of the model output, while
-a low or negative correlation would suggest that the two protocols capture
-complementary aspects of performance.
+In a second judge evaluation, GPT-5.5 was given 28~base tags and asked to
+(a)~rate the Problem/Solution quality of each model on a 0--10~scale,
+(b)~assess the usefulness of the model's tags as a percentage, and
+(c)~compute a composite score normalised to 0--100.
+
+\begin{table}[htbp]
+    \centering
+    \caption{GPT-5.5 judge results: P/S quality, tag usefulness, and composite
+             score. 665~extended tags were evaluated.}
+    \label{tab:judge-results}
+    \begin{tabular}{clccc}
+        \hline
+        \textbf{Rank} & \textbf{Model} & \textbf{P/S Quality} & \textbf{Usefulness} & \textbf{Composite} \\
+        \hline
+        1st & GPTOSS      & 6.09/10 (R1) & 65.6\% (R1) & 100.0/100 \\
+        2nd & GEMMA4       & 4.54/10 (R3) & 39.6\% (R2) &  62.5/100 \\
+        3rd & QWEN3\_14B   & 5.27/10 (R2) & 29.2\% (R4) &  50.0/100 \\
+        4th & LLAMA3.1     & 4.09/10 (R4) & 37.2\% (R3) &  37.5/100 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Among the open-source models evaluated by the judge, GPTOSS achieves
+first place across all three metrics with a perfect composite score
+of~100/100.  The gap between GPTOSS and the runner-up GEMMA4 is
+substantial (37.5~composite points), primarily driven by the large
+usefulness margin (65.6\% vs 39.6\%).  Notably, QWEN3\_14B ranks second
+in P/S quality (5.27) but only fourth in usefulness (29.2\%), indicating
+that it produces well-reasoned but less practically relevant tags.
 
 %----------------------------------------------------------------------
-\section{Open-Source Model Comparison}
+\section{Semantic Similarity Analysis}
+\label{sec:res-semantic}
+%
+To complement the token-level and judge-based evaluations, a semantic
+similarity analysis compares each model's output to the original ticket
+content using four embedding models: OpenAI, E5, SBERT, and BGE.  An
+ensemble average is computed across all four embeddings.
+
+\subsection{Problem/Solution Similarity}
+%
+Table~\ref{tab:semantic-ps} shows the semantic similarity scores for the
+Problem/Solution extraction task.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Semantic similarity of Problem/Solution output to ticket content
+             (ensemble average of four embedding models).}
+    \label{tab:semantic-ps}
+    \begin{tabular}{llccccc}
+        \hline
+        \textbf{Model} & \textbf{Source} & \textbf{OpenAI} & \textbf{E5} & \textbf{SBERT} & \textbf{BGE} & \textbf{Ensemble} \\
+        \hline
+        gpt54\_mini  & OpenAI & 0.493 & 0.853 & 0.265 & 0.684 & 0.574 \\
+        gpt5.5       & OpenAI & 0.491 & 0.852 & 0.265 & 0.676 & 0.571 \\
+        gpt4o\_mini  & OpenAI & 0.449 & 0.845 & 0.260 & 0.674 & 0.557 \\
+        gptoss       & Ollama & 0.417 & 0.840 & 0.253 & 0.666 & 0.544 \\
+        llama3.1     & Ollama & 0.394 & 0.837 & 0.250 & 0.673 & 0.538 \\
+        qwen3\_14b   & Ollama & 0.389 & 0.836 & 0.233 & 0.660 & 0.529 \\
+        gemma4       & Ollama & 0.366 & 0.829 & 0.225 & 0.654 & 0.518 \\
+        \hline
+        \multicolumn{6}{l}{\textit{Overall average}} & 0.547 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Blind Tag Similarity}
+%
+Table~\ref{tab:semantic-bt} shows the semantic similarity scores for the
+blind tag generation task.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Semantic similarity of blind tag output to ticket content.}
+    \label{tab:semantic-bt}
+    \begin{tabular}{llccccc}
+        \hline
+        \textbf{Model} & \textbf{Source} & \textbf{OpenAI} & \textbf{E5} & \textbf{SBERT} & \textbf{BGE} & \textbf{Ensemble} \\
+        \hline
+        gpt5.5       & OpenAI & 0.334 & 0.828 & 0.235 & 0.654 & 0.513 \\
+        gpt54\_mini  & OpenAI & 0.311 & 0.825 & 0.226 & 0.654 & 0.504 \\
+        gpt4o\_mini  & OpenAI & 0.307 & 0.826 & 0.221 & 0.656 & 0.502 \\
+        llama3.1     & Ollama & 0.285 & 0.825 & 0.206 & 0.644 & 0.490 \\
+        gptoss       & Ollama & 0.270 & 0.823 & 0.180 & 0.642 & 0.479 \\
+        gemma4       & Ollama & 0.231 & 0.825 & 0.130 & 0.636 & 0.456 \\
+        qwen3\_14b   & Ollama & 0.216 & 0.823 & 0.119 & 0.633 & 0.448 \\
+        \hline
+        \multicolumn{6}{l}{\textit{Overall average}} & 0.485 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/semantic_similarity.png}
+    \caption{Semantic similarity scores for Problem/Solution and Blind Tag
+             tasks across four embedding models.}
+    \label{fig:semantic-similarity}
+\end{figure}
+
+\subsection{Combined Semantic Average}
+%
+Table~\ref{tab:combined-avg} aggregates the P/S and Blind Tag ensemble
+averages into a single combined score.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Combined semantic similarity average (Problem/Solution + Blind Tag).}
+    \label{tab:combined-avg}
+    \begin{tabular}{llccc}
+        \hline
+        \textbf{Model} & \textbf{Source} & \textbf{Problem/Solution} & \textbf{Blind Tag} & \textbf{Combined Avg} \\
+        \hline
+        gpt5.5       & OpenAI & 0.571 & 0.513 & 0.542 \\
+        gpt54\_mini  & OpenAI & 0.574 & 0.504 & 0.539 \\
+        gpt4o\_mini  & OpenAI & 0.557 & 0.502 & 0.530 \\
+        llama3.1     & Ollama & 0.538 & 0.490 & 0.514 \\
+        gptoss       & Ollama & 0.544 & 0.479 & 0.511 \\
+        qwen3\_14b   & Ollama & 0.529 & 0.448 & 0.489 \\
+        gemma4       & Ollama & 0.518 & 0.456 & 0.487 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/combined_average.png}
+    \caption{Combined average semantic similarity for P/S and Blind Tags.}
+    \label{fig:combined-avg}
+\end{figure}
+
+The semantic similarity analysis reveals a consistent ranking: proprietary
+models lead, followed by \texttt{gptoss} and \texttt{llama3.1} as the
+strongest open-source contenders.  The Problem/Solution task consistently
+yields higher similarity scores than the Blind Tag task (overall average
+0.547 vs 0.485), suggesting that extracting factual problem descriptions is
+easier for LLMs than generating appropriate categorical tags.
+
+%----------------------------------------------------------------------
+\section{Open-Source Model Comparison (RQ2)}
 \label{sec:res-oss}
 %
-Beyond the overall ranking, the open-source models submitted via Ollama are
-compared in isolation to determine which locally-deployable model is most
-cost-effective.  Proprietary API models~(GPT-4o, GPT-3.5-Turbo) are included
-for reference but are excluded from the open-source ranking.  Among the
-Ollama models, \texttt{gpt-oss:20b} consistently leads both the F1 and
-judge rankings.  Reasoning-style models~(\texttt{deepseek-r1:14b},
-\texttt{qwen3:14b}) outperform standard instruction-tuned models of similar
-size, suggesting that chain-of-thought training is beneficial even under
-zero-shot conditions.
+Based on the intermediate results from all three evaluation protocols, two
+models were selected for the final comparison: \texttt{gpt-oss} and
+\texttt{gemma4}.  The selection criteria were:
+
+\begin{itemize}
+    \item \textbf{GPTOSS}: Ranked 1st in the LLM-as-judge composite
+          (100/100), 4th in F1 (0.3562), and 5th in combined semantic
+          similarity (0.511).  Strongest overall balance.
+    \item \textbf{GEMMA4}: Ranked 2nd in the judge composite (62.5/100),
+          5th in F1 (0.3122), and 7th in semantic similarity (0.487).
+          Highest recall among open-source models (0.4951).
+\end{itemize}
+
+Among the Ollama-served models, GPTOSS consistently leads the judge rankings
+while GEMMA4 excels at recall-oriented tasks.  These two models are carried
+forward into the full-corpus run described in Section~\ref{sec:res-fullrun}.
 
 %----------------------------------------------------------------------
 \section{Full Run on the Complete Corpus}
@@ -149,11 +357,9 @@ zero-shot conditions.
 %
 The benchmark study reported above is restricted to the 250-ticket annotated
 benchmark.  In a final step, the best-performing configuration identified on
-the benchmark~(\texttt{gpt-oss:20b}) is applied to the entire Amazone~Werke
-ticket corpus.  This full-corpus run serves two purposes: it produces a
-fully tagged dataset for downstream business analyses, and it allows
-qualitative inspection of model behaviour on out-of-benchmark ticket
-categories that were not part of the GS/BL/LB sample.
+the benchmark is applied to the entire Amazone~Werke ticket corpus.  As
+reported on the presentation slides, the final prompt was run on a chunk of
+2025~data, processing 2742~out of~5730 tickets (approximately 48\%).
 
 \subsection{Throughput and Resource Consumption}
 %
@@ -188,6 +394,9 @@ models~(\texttt{llama3.2}, \texttt{gpt-3.5-turbo}) exhibit over-tagging
 rates above~60\,\%, often including loosely related tags that reflect
 general domain knowledge rather than ticket-specific evidence.  Larger
 models are more conservative and stay closer to the ground-truth tag count.
+\texttt{Gemma4} is particularly aggressive: despite ranking 5th in F1, it
+achieves the highest recall (0.4951) by assigning many tags, most of which
+are imprecise.
 
 \subsection{Under-tagging Patterns}
 %
@@ -195,7 +404,9 @@ Under-tagging is less common but more pronounced in the LB~(Lagerbelastung)
 category.  Warehouse-charge tickets tend to be sparse in narrative text and
 heavy in structured codes.  When the narrative signal is weak, models
 fail to connect the codes to a meaningful service category and omit tags
-that a human recognises from domain context.
+that a human recognises from domain context.  \texttt{Qwen3\_14b} and
+\texttt{qwen2.5} show the most conservative tagging behaviour with recall
+values below~0.26.
 
 \subsection{Category-level Observations}
 %
@@ -203,20 +414,17 @@ that a human recognises from domain context.
     \item \textbf{GS (Gutschrift)}: The most frequent category; models
           generally perform best here due to the larger training signal in
           the pre-training corpora for invoice/credit-note language.
-          \textbf{The average F1 score of 0.412 for GPTOSS indicates that
-          standard business correspondence is highly predictable for 20B+
-          parameter models.}
 
     \item \textbf{BL (Belastungsanzeige)}: Intermediate difficulty; the
           charge-notification genre is less common in open-web training data.
-          \textbf{Models often struggled with the distinction between a
-          requested charge and a confirmed charge, leading to lower precision.}
+          Models often struggled with the distinction between a
+          requested charge and a confirmed charge, leading to lower precision.
 
     \item \textbf{LB (Lagerbelastung)}: The most challenging category;
           tickets often contain technical codes and sparse narrative text,
-          leaving little signal for the LLM to reason from. \textbf{This
+          leaving little signal for the LLM to reason from.  This
           category had the highest under-tagging rate, as models failed to
-          identify latent service actions from article numbers alone.}
+          identify latent service actions from article numbers alone.
 \end{itemize}
 
 \subsection{Language-specific Errors and Normalisation}
@@ -228,3 +436,6 @@ language-sensitive.  German compound words~(e.g.~\textit{Lagerbelastung})
 are sometimes reproduced verbatim rather than translated to the approved
 English tag equivalent, lowering precision.  Normalising model output to
 lower-case English before F1 evaluation partially mitigates this effect.
+The benchmark language distribution~(82.8\% German, 15.7\% English, 1.1\%
+Russian, 0.3\% Spanish, 0.2\% Estonian) means that the majority of inputs
+trigger the German code-switching problem.

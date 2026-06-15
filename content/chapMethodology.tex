@@ -27,7 +27,7 @@ The thesis follows a three-phase methodology:
           (with and without the ground-truth tags visible to the annotator)
           yield a \emph{ground-truth~set}~(GS) and a \emph{blind-label~set}~(BL/LB).
 
-    \item \textbf{LLM evaluation.}  Ten model configurations are run on each
+    \item \textbf{LLM evaluation.}  Fifteen model configurations are run on each
           benchmark ticket using a two-call protocol: one call for
           Problem/Solution/Entity extraction and one for blind tag generation.
           Results are scored against the human annotations using F1 and via
@@ -46,6 +46,78 @@ files.  The folder name encodes the ticket identifier~(e.g.~\texttt{T250001234})
 and is grouped under a parent category prefix~(\texttt{T16}--\texttt{T25},
 corresponding to years 2016--2025).
 
+\subsubsection{Corpus Volume and Growth}
+%
+Figures~\ref{fig:gs-trend}--\ref{fig:lb-trend} show the file format
+composition trend for each ticket category over the period T16--T25.  The
+corpus has grown significantly since~2020, with PDF files dominating
+Gutschrift tickets (99\%+) and MSG files becoming increasingly prominent in
+Belastungsanzeige and Lagerbelastung tickets from T24~onwards.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/gutschrift_file_format_trend.png}
+    \caption{Gutschrift: file format composition trend (T16--T25).}
+    \label{fig:gs-trend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_file_format_trend.png}
+    \caption{Belastungsanzeige: file format composition trend (T16--T25).}
+    \label{fig:bl-trend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_file_format_trend.png}
+    \caption{Lagerbelastung: file format composition trend (T16--T25).}
+    \label{fig:lb-trend}
+\end{figure}
+
+Figures~\ref{fig:gs-records}--\ref{fig:lb-records} show the number of
+records per year for each category.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/gutschrift_records_per_year.png}
+    \caption{Gutschrift records per year (T16--T25).}
+    \label{fig:gs-records}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_records_per_year.png}
+    \caption{Belastungsanzeige records per year (T16--T25).}
+    \label{fig:bl-records}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_records_per_year.png}
+    \caption{Lagerbelastung records per year (T16--T25).}
+    \label{fig:lb-records}
+\end{figure}
+
+Figure~\ref{fig:gs-money} shows the total monetary value of Gutschrift
+credit notes per year, peaking at over 9.1~million~EUR in T23~(2023).
+Figure~\ref{fig:bl-cost} shows the total cost per year for Belastungsanzeige
+charge notifications.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/gutschrift_money_spent.png}
+    \caption{Total Gutschrift credit note value per year in EUR (T16--T25).}
+    \label{fig:gs-money}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_cost_per_year.png}
+    \caption{Total Belastungsanzeige cost per year in 1000~EUR (T16--T25).}
+    \label{fig:bl-cost}
+\end{figure}
+
 \subsection{File Conversion to Markdown}
 %
 All attachment types are converted to plain Markdown to create a uniform
@@ -63,11 +135,38 @@ input format for the LLM.  The conversion strategy is:
           preserves table structure and avoids common layout artefacts.
           Pages are separated by horizontal rules. \textbf{For scanned
           documents, an OCR-fallback layer using Tesseract is implemented.}
-
-    \item \textbf{DOCX / XLSX files:} Content is extracted using
-          \texttt{python-docx} and \texttt{openpyxl} respectively and
-          converted to Markdown tables or paragraph blocks.
 \end{itemize}
+
+\subsubsection{PDF Extraction Tool Selection}
+%
+Before settling on PyMuPDF4LLM, five alternative libraries were evaluated
+on a test set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung,
+5~Belastungsanzeige).  A tool scores one point per PDF where all expected
+fields are correctly extracted.  Table~\ref{tab:tool-comparison} summarises
+the results.
+
+\begin{table}[htbp]
+    \centering
+    \caption{PDF extraction tool comparison (score: number of PDFs with
+             all fields correctly extracted out of~15).}
+    \label{tab:tool-comparison}
+    \begin{tabular}{llcl}
+        \hline
+        \textbf{Library} & \textbf{License} & \textbf{Score} & \textbf{Cost} \\
+        \hline
+        PyMuPDF4LLM & AGPL      & \textbf{15/15} & Free (if not hosted) \\
+        Docling      & MIT       & 11/15          & Free \\
+        Spire        & Commercial & 11/15         & Paid \\
+        Tabula-py    & MIT       & 6/15           & Free \\
+        pypdf        & BSD 3-Cl. & --             & Free \\
+        \hline
+    \end{tabular}
+\end{table}
+
+PyMuPDF4LLM was the only tool to achieve a perfect score across all three
+document categories.  Additionally, all tools performed comparably in terms
+of speed, with the exception of Docling, which was approximately 1.5$\times$
+slower.
 
 Files that cannot be converted~(corrupted, password-protected, image-only PDFs)
 are skipped and logged; the remaining text files are combined into a single
@@ -78,21 +177,53 @@ are skipped and logged; the remaining text files are combined into a single
 %
 Given the 128k context window of the target models, most email threads fit
 entirely.  However, to improve reasoning performance and reduce noise, a
-cleaning pass is applied:
+cleaning pass is applied.  The following boilerplate patterns were identified
+and removed automatically:
 
-\begin{itemize}
-    \item \textbf{Duplicate Removal:} Consecutive replies that contain the same
-          quoted text are deduplicated to keep only the newest contribution.
-    \item \textbf{Signature and Footer Stripping:} Boilerplate text such as
-          disclaimers, office addresses, and social media links are removed
-          using pattern-based heuristic filters.
-    \item \textbf{System Notification Filtering:} Automated status change
-          notifications and "ticket received" confirmations are excluded as
-          they provide no semantic value for tag assignment.
-\end{itemize}
+\begin{table}[htbp]
+    \centering
+    \caption{Most frequent boilerplate patterns removed during preprocessing.}
+    \label{tab:boilerplate}
+    \begin{tabular}{lr}
+        \hline
+        \textbf{Pattern} & \textbf{Files affected} \\
+        \hline
+        KG Legal Footer             & 86,408 \\
+        Bank Details Block          & 84,108 \\
+        AMAZONE Postal Header       & 78,073 \\
+        Manufacturer Header         & 69,074 \\
+        OS Trademark Notice         & 17,516 \\
+        AMAZONE Standalone Address  & 13,304 \\
+        urldefense URL              & 12,099 \\
+        SafeLinks URL               &  8,323 \\
+        IBAN Lines                  &  5,144 \\
+        AMAZONE GDPR Notice DE      &  2,860 \\
+        \hline
+    \end{tabular}
+\end{table}
 
-This preprocessing reduces the average ticket context size by approximately
-30\,\%, ensuring the LLM focuses on the human narrative.
+The combined preprocessing results are:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Preprocessing compression results.}
+    \label{tab:compression}
+    \begin{tabular}{lr}
+        \hline
+        \textbf{Metric} & \textbf{Value} \\
+        \hline
+        Files scanned        & 242,499 \\
+        Image-only deleted   & 11,917 \\
+        Files compressed     & 216,246 \\
+        Files unchanged      & 14,336 \\
+        Errors               & 0 \\
+        \hline
+        Original size        & 949.9\,MB \\
+        Space saved          & 219.5\,MB \\
+        Reduction            & 23.1\% \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \subsection{Rule-based Pattern Extraction}
 \label{subsec:regex}
@@ -147,7 +278,68 @@ three distinct ticket categories:
 
 Tickets were selected to ensure coverage of different years~(T16--T25),
 a variety of email-thread lengths~(1--20+ messages), and both resolved and
-unresolved cases.
+unresolved cases.  The benchmark composition is 50~Gutschrift,
+100~Belastungsanzeige, and 100~Lagerbelastung tickets, chosen to balance
+category representation with the relative complexity of each type.
+
+\subsubsection{Benchmark Data Characteristics}
+%
+The language distribution of the benchmark tickets is dominated by German
+(Table~\ref{tab:language-dist}), reflecting the typical communication
+patterns between Amazone's German headquarters and its international
+dealer network.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Language distribution in the 250-ticket benchmark.}
+    \label{tab:language-dist}
+    \begin{tabular}{lrr}
+        \hline
+        \textbf{Language} & \textbf{Percent} & \textbf{Count} \\
+        \hline
+        German   & 82.8\% & 538 \\
+        English  & 15.7\% & 102 \\
+        Russian  &  1.1\% &   7 \\
+        Spanish  &  0.3\% &   2 \\
+        Estonian &  0.2\% &   1 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Figure~\ref{fig:benchmark-filetypes} shows the distribution of source file
+types in the benchmark.  MSG email files dominate overwhelmingly (622~out of
+650~files, 95.7\%), confirming that the primary communication channel is
+email.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/benchmark_file_type_distribution.png}
+    \caption{Distribution of source file types in the benchmark Markdown files.}
+    \label{fig:benchmark-filetypes}
+\end{figure}
+
+Figure~\ref{fig:ticket-classification} shows that 237~tickets~(97.1\%)
+contain at least one \texttt{.msg.md} file, while only 7~tickets~(2.9\%)
+consist entirely of non-email files.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/ticket_classification.png}
+    \caption{Ticket classification: tickets with .msg.md files vs other files only.}
+    \label{fig:ticket-classification}
+\end{figure}
+
+Figure~\ref{fig:files-per-ticket} shows the distribution of files per
+ticket.  The majority of tickets (60.7\%) contain only a single file, while
+4.9\% contain eleven or more files, representing complex multi-message
+threads with attachments.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/file_distribution_per_ticket.png}
+    \caption{Distribution of files per ticket in the benchmark dataset.}
+    \label{fig:files-per-ticket}
+\end{figure}
 
 \subsection{Human Annotation}
 %
@@ -191,27 +383,33 @@ the OpenAI API.
 
 \subsection{Models Evaluated}
 %
-Table~\ref{tab:models} lists all ten model configurations evaluated in
-this thesis.
+Table~\ref{tab:models} lists all fifteen model configurations evaluated in
+this thesis, spanning both open-source models served via Ollama and
+proprietary models accessed via the OpenAI API.
 
 \begin{table}[htbp]
     \centering
     \caption{Models evaluated in the benchmark study.}
     \label{tab:models}
-    \begin{tabular}{lllc}
+    \begin{tabular}{llll}
         \hline
-        \textbf{Prefix} & \textbf{Model} & \textbf{Type} & \textbf{Params} \\
+        \textbf{Short Name} & \textbf{Model} & \textbf{Source} & \textbf{Origin} \\
         \hline
-        \texttt{gptoss}        & gpt-oss               & Open-source (Ollama) & 20B \\
-        \texttt{gemma4}        & gemma4:latest         & Open-source (Ollama) & 9B \\
-        \texttt{gemma4\_26b}   & gemma4:26b            & Open-source (Ollama) & 26B \\
-        \texttt{gemma3\_12b}   & gemma3:12b            & Open-source (Ollama) & 12B \\
-        \texttt{llama}         & llama3.1:8b           & Open-source (Ollama) & 8B \\
-        \texttt{llama8}        & llama3.2:latest       & Open-source (Ollama) & 3B \\
-        \texttt{deepseek}      & deepseek-r1:14b       & Open-source (Ollama) & 14B \\
-        \texttt{qwen3\_14b}    & qwen3:14b             & Open-source (Ollama) & 14B \\
-        \texttt{gpt-4o}        & gpt-4o                & Proprietary (API)    & -- \\
-        \texttt{gpt-3.5-turbo} & gpt-3.5-turbo         & Proprietary (API)    & -- \\
+        gptoss         & gpt-oss:20b          & Ollama  & OpenAI (USA) \\
+        gemma4         & gemma4:latest         & Ollama  & Google (USA) \\
+        gemma7b        & gemma:7b              & Ollama  & Google (USA) \\
+        llama3.1       & llama3.1:8b           & Ollama  & Meta (USA) \\
+        llama3.2       & llama3.2:latest       & Ollama  & Meta (USA) \\
+        dolphin        & dolphin-mixtral       & Ollama  & Mistral AI (France) \\
+        qwen3\_14b     & qwen3:14b             & Ollama  & Alibaba (China) \\
+        qwen2.5        & qwen2.5:7b            & Ollama  & Alibaba (China) \\
+        deepseek7b     & deepseek-r1:7b        & Ollama  & DeepSeek (China) \\
+        deepseek14     & deepseek-r1:14b       & Ollama  & DeepSeek (China) \\
+        gpt-5.5        & gpt-5.5               & API     & OpenAI (USA) \\
+        gpt-5\_4-mini  & gpt-5.4-mini          & API     & OpenAI (USA) \\
+        gpt-4o         & gpt-4o                & API     & OpenAI (USA) \\
+        gpt-4o-mini    & gpt-4o-mini           & API     & OpenAI (USA) \\
+        gpt-3.5-turbo  & gpt-3.5-turbo         & API     & OpenAI (USA) \\
         \hline
     \end{tabular}
 \end{table}

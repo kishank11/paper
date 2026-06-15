@@ -1,0 +1,138 @@
+\chapter{Related Work}
+%
+\label{chap:RelatedWork}
+%
+This chapter surveys the research areas most directly relevant to this thesis:
+(1)~the use of LLMs for information extraction, (2)~automated service ticket
+analysis, (3)~multi-label text classification, and (4)~multilingual NLP.
+
+%----------------------------------------------------------------------
+\section{Large Language Models for Information Extraction}
+\label{sec:rw-llm-ie}
+%
+Since the introduction of the Transformer architecture~\cite{vaswani2017attention},
+pre-trained language models have become the dominant paradigm for NLP tasks.
+\textsc{BERT}~\cite{devlin2019bert} demonstrated that fine-tuning a single
+pre-trained model achieves strong results across diverse extraction tasks.
+More recently, instruction-tuned decoder-only models such as the
+GPT~\cite{brown2020language} and Llama~\cite{touvron2023llama} families have shown
+that well-crafted zero-shot prompts can match or surpass fine-tuned baselines on
+many information extraction benchmarks.
+
+\citeauthor{wei2022finetuned}~\cite{wei2022finetuned} showed that instruction
+fine-tuning substantially improves zero-shot performance, while
+\citeauthor{kojima2022large}~\cite{kojima2022large} demonstrated that chain-of-thought
+prompting further unlocks reasoning in larger models.  Both findings motivate the
+structured, step-by-step prompt design used in this thesis
+(see Section~\ref{sec:prompt-design}).
+
+Domain-aware prompts consistently outperform generic prompts.
+\citeauthor{ma2023large}~\cite{ma2023large} showed this for biomedical named entity
+recognition, and similar results have been reported in legal document analysis.
+Accordingly, the prompts in this thesis embed Amazone-specific domain vocabulary and
+define a fixed output schema.
+
+%----------------------------------------------------------------------
+\section{Automated Service Ticket Analysis}
+\label{sec:rw-tickets}
+%
+Automated analysis of IT helpdesk tickets has been studied since at least the
+early 2000s.  Classical approaches relied on keyword matching and TF-IDF
+vectorisation combined with support vector machines for ticket categorisation
+\cite{yang1999reevaluation}.  More recent work applies deep learning: recurrent
+networks \cite{hochreiter1997long} and BERT-based classifiers are now common for
+ticket routing and priority prediction.
+
+However, the bulk of this literature targets English-language IT helpdesk data
+from publicly available datasets~(e.g.~Incident Ticket from ServiceNow).
+Industrial service tickets for physical machinery—multi-lingual, attachment-heavy,
+and spanning years of email threads—are comparatively understudied.
+The closest related work by \citeauthor{hassan2023llm}~\cite{hassan2023llm}
+applies GPT-4 to manufacturing quality reports but does not address the
+extraction of structured entities or multi-label categorisation.
+
+This thesis contributes to filling this gap by constructing and releasing a
+benchmark for agricultural machinery service tickets and evaluating multiple LLMs
+on it.
+
+%----------------------------------------------------------------------
+\section{Multi-label Text Classification}
+\label{sec:rw-multilabel}
+%
+Service tickets require multi-label classification because a single ticket may
+simultaneously involve a warranty claim, a spare part request, and an electronic
+fault.  Classical multi-label learning surveys~\cite{zhang2014review} distinguish
+problem-transformation methods~(e.g.\ binary relevance, label powerset) from
+algorithm-adaptation methods.
+
+Transformer models reformulate multi-label classification as sequence generation,
+outputting a comma-separated list of labels or a JSON array.  The blind-tag
+evaluation protocol used in this thesis follows the approach of
+\citeauthor{yang2023llm4label}~\cite{yang2023llm4label}, who found that
+LLMs outperform fine-tuned classifiers when the label set is large and the
+training data is scarce—precisely the setting of this thesis.
+
+An important distinction is between \emph{accuracy-oriented} evaluation~(strict
+match against a fixed ground truth) and \emph{usefulness-oriented} evaluation.
+The latter is more appropriate when multiple valid labellings exist, and is
+captured here through the LLM-as-judge protocol described in
+Section~\ref{sec:llm-judge}.
+
+%----------------------------------------------------------------------
+\section{Multilingual NLP and Code-switching}
+\label{sec:rw-multilingual}
+%
+Service tickets in this corpus are predominantly in German but frequently contain
+English phrases, Latin abbreviations, and brand-specific terminology.
+This phenomenon, known as \emph{code-switching}, poses challenges for models
+trained predominantly on English data.
+
+Multilingual models such as mBERT~\cite{devlin2019bert} and
+XLM-R~\cite{conneau2020unsupervised} handle code-switching with varying success
+depending on the language pair and domain.  Among the LLMs evaluated in this
+thesis, instruction-tuned models with multilingual training data~(Gemma~3,
+Qwen~2.5) generally outperform English-centric models on German passages
+(see Section~\ref{sec:results-language}).
+
+%----------------------------------------------------------------------
+\section{LLM Evaluation and the LLM-as-Judge Framework}
+\label{sec:rw-judge}
+%
+Standard NLP metrics such as F1-score and exact match are insufficient for
+evaluating free-form generation where multiple valid outputs exist.
+\citeauthor{zheng2024judging}~\cite{zheng2024judging} introduced the
+LLM-as-judge paradigm, in which a capable model~(e.g.~GPT-4) evaluates the
+quality of outputs from other models using structured rubrics.  This approach
+has been adopted for summarisation, dialogue, and, more recently, information
+extraction evaluation.
+
+This thesis applies LLM-as-judge to rate tag usefulness and reasoning coherence,
+complementing the F1-based evaluation against human annotations.
+
+%----------------------------------------------------------------------
+\section{Summary and Research Gap}
+\label{sec:rw-gap}
+%
+Table~\ref{tab:rw-gap} summarises the positioning of this thesis relative to
+prior work.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Positioning of this thesis in the related-work landscape.}
+    \label{tab:rw-gap}
+    \begin{tabular}{lccccc}
+        \hline
+        \textbf{Work} & \textbf{LLM} & \textbf{Industrial} & \textbf{Multi-lingual}
+                      & \textbf{Multi-label} & \textbf{Benchmark} \\
+        \hline
+        Yang~et~al.~\cite{yang1999reevaluation}   & -- & -- & -- & \checkmark & \checkmark \\
+        Hassan~et~al.~\cite{hassan2023llm}         & \checkmark & \checkmark & -- & -- & -- \\
+        Yang~et~al.~\cite{yang2023llm4label}       & \checkmark & -- & -- & \checkmark & \checkmark \\
+        \textbf{This thesis}                        & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The combination of an industrial, multi-lingual setting with multi-label
+classification and a human-annotated benchmark represents a contribution not
+addressed by any single prior work.

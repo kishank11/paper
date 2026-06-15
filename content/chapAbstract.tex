@@ -1,0 +1,29 @@
+\chapter*{Abstract}
+\label{chap:abstract}
+%
+Industrial service operations generate large volumes of unstructured data in the form of
+service tickets—multi-lingual email threads, attachments, and PDF documents—that are
+difficult to process at scale using conventional methods. This thesis investigates whether
+Large Language Models~(LLMs) can reliably extract actionable insights from such tickets
+in an industrial context.
+
+A preprocessing pipeline converts raw ticket files~(MSG, PDF, DOCX) into structured
+Markdown representations. A benchmark dataset of 250 manually annotated tickets is
+constructed from three ticket categories and used to evaluate ten LLM configurations,
+including both open-source models served via Ollama~(Gemma~3, Llama~3.1, DeepSeek-R1,
+Mistral, Qwen~2.5) and proprietary models~(GPT-4o, GPT-3.5-Turbo). Two complementary
+evaluation protocols are applied: comparison against human-annotated ground-truth tags
+using F1-score, and an LLM-as-judge framework that scores tag usefulness and reasoning
+quality.
+
+The results show that, with well-designed prompts, LLMs can extract structured
+information~(problem, solution, item identifiers) and generate meaningful categorical
+tags from multi-lingual service tickets. Rule-based regex extraction is sufficient for
+recurring structured fields such as document categories, article codes, and machine
+serial numbers, while LLMs are required for the narrative, context-dependent parts of
+tickets. Among the evaluated models, \textsc{gpt-oss}~(20B) achieved the strongest
+overall balance of tag usefulness and reasoning coherence on the benchmark set.
+
+\bigskip
+\noindent\textbf{Keywords:} Large Language Models, Service Ticket Analysis, Information
+Extraction, Multi-label Classification, Ollama, Zero-shot Prompting, Industrial NLP.

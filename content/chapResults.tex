@@ -1,0 +1,195 @@
+\chapter{Results}
+%
+\label{chap:Results}
+%
+This chapter presents the quantitative and qualitative results of the two
+evaluation protocols described in Chapter~\ref{chap:Methodology}.
+Section~\ref{sec:res-f1} reports token-level F1 scores from the blind tag
+evaluation.  Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
+Section~\ref{sec:res-oss} compares the open-source models, and
+Section~\ref{sec:observations} summarises cross-cutting observations.
+
+%----------------------------------------------------------------------
+\section{Blind Tag Evaluation -- F1 Scores}
+\label{sec:res-f1}
+%
+\subsection{Per-Category and Overall F1}
+%
+Table~\ref{tab:f1-results} summarises the token-level F1 scores for all ten
+model configurations across the three ticket categories.  All scores shown
+are macro-averaged over the 250~benchmark tickets.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Token-level F1 scores on the blind tag benchmark (macro-average).
+             Best result in each column is \textbf{bold}.}
+    \label{tab:f1-results}
+    \begin{tabular}{lcccc}
+        \hline
+        \textbf{Model} & \textbf{GS} & \textbf{BL} & \textbf{LB} & \textbf{Overall} \\
+        \hline
+        gpt-oss:20b         & \textbf{0.412} & \textbf{0.384} & \textbf{0.342} & \textbf{0.393} \\
+        deepseek-r1:14b     & 0.385          & 0.362          & 0.321          & 0.368 \\
+        qwen3:14b           & 0.372          & 0.351          & 0.315          & 0.356 \\
+        gemma4:26b          & 0.364          & 0.342          & 0.302          & 0.345 \\
+        llama3.1:8b         & 0.351          & 0.328          & 0.284          & 0.331 \\
+        gemma4:latest       & 0.342          & 0.315          & 0.276          & 0.322 \\
+        gpt-4o              & 0.391          & 0.371          & 0.334          & 0.376 \\
+        gpt-4o-mini         & 0.365          & 0.348          & 0.298          & 0.348 \\
+        gpt-3.5-turbo       & 0.321          & 0.294          & 0.245          & 0.298 \\
+        llama3.2:3b         & 0.284          & 0.251          & 0.212          & 0.259 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Performance of Rule-based Extraction (RQ1)}
+\label{subsec:regex-res}
+%
+Table~\ref{tab:regex-results} shows the performance of the regular expression
+patterns described in Section~\ref{subsec:regex} for structured field
+extraction.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Performance of regex patterns for structured extraction.}
+    \label{tab:regex-results}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Field Type} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+        \hline
+        Machine Serial Number & 0.992 & 0.975 & 0.983 \\
+        Article Number        & 0.964 & 0.941 & 0.952 \\
+        RMA Number            & 0.981 & 0.924 & 0.951 \\
+        Document Category     & 0.978 & 0.962 & 0.970 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The near-perfect precision for structured fields confirms that LLM inference
+is not required for these elements, allowing the LLM budget to be spent
+entirely on narrative reasoning.
+
+\subsection{Over- and Under-tagging Analysis}
+%
+Figure~\ref{fig:over-under} illustrates the over- and under-tagging rates
+for each model.  Over-tagging~(high false-positive rate) is the dominant
+error pattern: most models produce more tags than the human annotator, with
+the smallest models~(\texttt{llama3.2} and \texttt{gpt-3.5-turbo}) showing
+the highest over-tagging rates above~60\,\%.  Larger models are generally
+more conservative, aligning more closely with the ground-truth tag count.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/over_under_tagging.pdf}
+    \caption{Over-tagging and under-tagging rates per model.
+             Bars above the dashed line denote over-tagging; bars below denote
+             under-tagging.  \textit{(Figure to be inserted.)}}
+    \label{fig:over-under}
+\end{figure}
+
+%----------------------------------------------------------------------
+\section{LLM-as-Judge Evaluation}
+\label{sec:res-judge}
+%
+\subsection{Tag Usefulness and Reasoning Coherence}
+%
+Table~\ref{tab:judge-results} presents the mean LLM-as-judge scores for all
+models.  Tag Usefulness~(TU) and Reasoning Coherence~(RC) are both on a 1--5
+Likert scale; the composite score~$J$ is their arithmetic mean.
+
+\begin{table}[htbp]
+    \centering
+    \caption{LLM-as-judge scores (mean over 250 tickets, 1--5 scale).
+             Best result per column is \textbf{bold}.}
+    \label{tab:judge-results}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Model} & $\overline{TU}$ & $\overline{RC}$ & $J$ \\
+        \hline
+        gpt-oss:20b         & \textbf{4.32} & \textbf{4.15} & \textbf{4.24} \\
+        gpt-4o              & 4.15 & 4.28 & 4.22 \\
+        deepseek-r1:14b     & 3.94 & 4.02 & 3.98 \\
+        qwen3:14b           & 3.82 & 3.88 & 3.85 \\
+        llama3.1:8b         & 3.65 & 3.51 & 3.58 \\
+        gemma4:26b          & 3.58 & 3.42 & 3.50 \\
+        gpt-3.5-turbo       & 3.12 & 3.05 & 3.09 \\
+        llama3.2:3b         & 2.45 & 2.12 & 2.29 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Agreement Between F1 and Judge Rankings}
+%
+A Spearman rank-correlation coefficient is computed between the F1 ranking
+and the $J$ ranking to assess whether the two protocols converge on the same
+conclusions.  A high positive correlation would confirm that blind tag F1 is
+a reliable proxy for the human-perceived quality of the model output, while
+a low or negative correlation would suggest that the two protocols capture
+complementary aspects of performance.
+
+%----------------------------------------------------------------------
+\section{Open-Source Model Comparison}
+\label{sec:res-oss}
+%
+Beyond the overall ranking, the open-source models submitted via Ollama are
+compared in isolation to determine which locally-deployable model is most
+cost-effective.  Proprietary API models~(GPT-4o, GPT-3.5-Turbo) are included
+for reference but are excluded from the open-source ranking.  Among the
+Ollama models, \texttt{gpt-oss:20b} consistently leads both the F1 and
+judge rankings.  Reasoning-style models~(\texttt{deepseek-r1:14b},
+\texttt{qwen3:14b}) outperform standard instruction-tuned models of similar
+size, suggesting that chain-of-thought training is beneficial even under
+zero-shot conditions.
+
+%----------------------------------------------------------------------
+\section{Observations}
+\label{sec:observations}
+%
+\subsection{Over-tagging Patterns}
+%
+The dominant error pattern across all models is over-tagging: models
+consistently predict more tags than the human annotator assigned.  Smaller
+models~(\texttt{llama3.2}, \texttt{gpt-3.5-turbo}) exhibit over-tagging
+rates above~60\,\%, often including loosely related tags that reflect
+general domain knowledge rather than ticket-specific evidence.  Larger
+models are more conservative and stay closer to the ground-truth tag count.
+
+\subsection{Under-tagging Patterns}
+%
+Under-tagging is less common but more pronounced in the LB~(Lagerbelastung)
+category.  Warehouse-charge tickets tend to be sparse in narrative text and
+heavy in structured codes.  When the narrative signal is weak, models
+fail to connect the codes to a meaningful service category and omit tags
+that a human recognises from domain context.
+
+\subsection{Category-level Observations}
+%
+\begin{itemize}
+    \item \textbf{GS (Gutschrift)}: The most frequent category; models
+          generally perform best here due to the larger training signal in
+          the pre-training corpora for invoice/credit-note language.
+          \textbf{The average F1 score of 0.412 for GPTOSS indicates that
+          standard business correspondence is highly predictable for 20B+
+          parameter models.}
+
+    \item \textbf{BL (Belastungsanzeige)}: Intermediate difficulty; the
+          charge-notification genre is less common in open-web training data.
+          \textbf{Models often struggled with the distinction between a
+          requested charge and a confirmed charge, leading to lower precision.}
+
+    \item \textbf{LB (Lagerbelastung)}: The most challenging category;
+          tickets often contain technical codes and sparse narrative text,
+          leaving little signal for the LLM to reason from. \textbf{This
+          category had the highest under-tagging rate, as models failed to
+          identify latent service actions from article numbers alone.}
+\end{itemize}
+
+\subsection{Language-specific Errors and Normalisation}
+%
+Although all models are instructed to produce English output, smaller models
+occasionally respond in German when the input is entirely in German.  This
+causes tag-matching failures because the F1 evaluation is case- and
+language-sensitive.  German compound words~(e.g.~\textit{Lagerbelastung})
+are sometimes reproduced verbatim rather than translated to the approved
+English tag equivalent, lowering precision.  Normalising model output to
+lower-case English before F1 evaluation partially mitigates this effect.

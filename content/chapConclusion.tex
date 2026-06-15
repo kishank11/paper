@@ -1,0 +1,100 @@
+\chapter{Conclusion}
+%
+\label{chap:Conclusion}
+%
+This thesis investigated whether large language models can reliably extract
+structured insights from industrial service tickets written primarily in
+German.  The investigation was carried out on a 250-ticket benchmark
+from Amazone~Werke spanning three ticket categories~(GS, BL, LB) and
+ten model configurations.
+
+%----------------------------------------------------------------------
+\section{Summary of Work}
+\label{sec:summary}
+%
+The work proceeded in three stages:
+
+\begin{enumerate}
+    \item \textbf{Data engineering.}  A preprocessing pipeline was built to
+          convert heterogeneous ticket attachments~(MSG, PDF, DOCX, XLSX)
+          into a unified Markdown representation.  A rule-based pattern
+          extraction layer was added to capture structured fields~(document
+          categories, article numbers, machine serial numbers, RMA codes)
+          without an LLM.
+
+    \item \textbf{Benchmark construction.}  250~tickets were selected,
+          annotated by a human expert with ground-truth tags from a
+          117-tag taxonomy, and split into three category subsets.
+
+    \item \textbf{LLM evaluation.}  Ten model configurations were evaluated
+          using a two-call extraction and tagging protocol.  Results were
+          assessed with token-level F1 against the human annotations and via
+          an LLM-as-judge rubric measuring tag usefulness and reasoning
+          coherence.
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Answers to the Research Questions}
+\label{sec:rq-answers}
+%
+\paragraph{Main RQ: Can LLMs be used to reliably extract structured insights
+from industrial service tickets?}
+The experiments confirm that LLMs are a viable tool for this task,
+\emph{provided the prompts are carefully designed}.  Models with sufficiently
+large context windows~($\geq$~128k tokens) and moderate temperatures can
+process full email threads and produce structured JSON outputs that match
+human annotations at an F1 level of up to 0.39 for zero-shot tagging.
+While fully replacing human annotation remains a challenge, the models
+provide significant value in automated triage and insight synthesis.
+
+\paragraph{RQ\,1: Which types of information can be reliably extracted
+via rule-based patterns versus LLM inference?}
+The hybrid pipeline approach is strongly validated. Structured, pattern-conformant
+information~(machine serials, article numbers, RMA codes) is extracted with
+near-perfect F1 scores~(>0.95) using regular expressions. In contrast,
+narrative content such as problem summaries and semantic tags requires LLM
+reasoning, where model-based extraction significantly outperforms any
+potential rule-based approach.
+
+\paragraph{RQ\,2: Which LLM configuration produces the most useful and
+coherent insights in this industrial context?}
+\texttt{gpt-oss:20b}~(GPTOSS) emerged as the best-performing open-source
+configuration, achieving the highest macro-average F1~(0.393) and the
+highest judge score~($J=4.24$). It outperformed larger models like
+\texttt{gemma4:26b}, suggesting that domain-specific instruction tuning
+or architectural efficiency is more critical than raw parameter count in
+the 20B--30B range.
+
+%----------------------------------------------------------------------
+%----------------------------------------------------------------------
+\section{Future Work}
+\label{sec:future-work}
+%
+\begin{enumerate}
+    \item \textbf{Fine-tuning.}  Fine-tuning a 7B--14B model on the annotated
+          benchmark could close the gap with GPTOSS at significantly lower
+          inference cost.
+
+    \item \textbf{Active learning annotation.}  Extending the benchmark to
+          1{,}000+ tickets using model-assisted annotation~(human-in-the-loop)
+          would improve statistical reliability and reduce annotation effort.
+
+    \item \textbf{Multi-annotator study.}  Re-annotating a subset of the
+          benchmark with a second expert and computing Cohen's~$\kappa$ would
+          provide a more robust evaluation baseline.
+
+    \item \textbf{Integration into the service system.}  Deploying the
+          extraction pipeline as a real-time enrichment service for incoming
+          tickets, with a confidence threshold below which a human reviewer
+          is notified, would test the system in a production setting.
+
+    \item \textbf{Multilingual prompting.}  Prompting in German to match the
+          input language may improve recall for smaller models that struggle
+          with cross-lingual instruction following.
+
+    \item \textbf{Structured prediction models.}  Replacing the free-text
+          generation step with constrained decoding~(e.g.\ grammar-based
+          sampling) would guarantee schema-valid JSON output and eliminate
+          the need for post-hoc repair parsing.
+\end{enumerate}
+

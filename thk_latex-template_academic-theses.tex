@@ -1,0 +1,83 @@
+\documentclass[
+	USenglish,
+	%twoside,
+	BCOR=8mm,
+	headings=normal,
+	parskip=half,
+	headsepline,
+	automark,
+	listof=totoc,
+	bibliography=totoc,
+	%,captions=tableabove
+	%draft
+]{scrreprt}
+%
+%
+\input{packages}
+%
+\input{definitions}
+%
+\input{glsdefs}
+%
+\makeglossaries
+%
+\graphicspath{{images/}}
+%
+\addbibresource{references.bib}
+
+\nocite{*} % listet alle Quellen (auch die nicht zitierten!)
+%
+%=== für schnelleres kopilieren alle ungeänderten Dateien auskommentieren =====
+\includeonly{
+	content/chapDeclaration,
+	content/chapAbstract,
+	content/chapIntroduction,
+	content/chapRelatedWork,
+	content/chapMethodology,
+	content/chapResults,
+	content/chapDiscussion,
+	content/chapConclusion,
+	content/chapCode,
+}
+%
+%
+%==============================================================================
+%
+\begin{document}
+%
+\pdfbookmark[0]{Title page}{titel}
+\input{content/Cover}
+\cleardoublepage
+\pagenumbering{Roman}
+\include{content/chapAbstract}
+
+\cleardoublepage
+\pdfbookmark[0]{Table of contents}{toc}
+\tableofcontents
+\listoftables
+\listoffigures
+\printglossary
+\printglossary[type=\acronymtype, title={List of Abbreviations}]
+\printglossary[type=symbols, title={List of Symbols}]
+%
+\cleardoublepage
+\KOMAoptions{open=right}
+\pagenumbering{arabic}
+\include{content/chapIntroduction}
+\include{content/chapRelatedWork}
+\include{content/chapMethodology}
+\include{content/chapResults}
+\include{content/chapDiscussion}
+\include{content/chapConclusion}
+%
+\printbibliography[prenote=mynote]
+%
+\appendix
+\addchap{Appendix}
+\KOMAoptions{open=any}
+%
+\include{content/chapCode}
+\include{content/chapDeclaration}
+%
+%
+\end{document}

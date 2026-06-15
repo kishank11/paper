@@ -1,0 +1,49 @@
+\babel@toc {USenglish}{}\relax 
+\contentsline {chapter}{\nonumberline List of Tables}{IV}{chapter*.3}%
+\contentsline {chapter}{\nonumberline List of Figures}{V}{chapter*.4}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Formal Structure}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Sequence}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Cover Page}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Table of Contents}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}List of Figures and Tables}{4}{section.2.4}%
+\contentsline {section}{\numberline {2.5}List of Abbreviations}{4}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Bibliography}{4}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Spelling, Grammar}{5}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Scope of the Thesis}{5}{section.2.8}%
+\contentsline {chapter}{\numberline {3}Layout: Typesetting with \LaTeX }{6}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Under the hood}{7}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Headings}{7}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Paragraphs}{7}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Hyphenation}{8}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Enumerations}{8}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Illustrations}{8}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Images}{9}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Vector Graphs}{10}{subsection.3.6.2}%
+\contentsline {section}{\numberline {3.7}Tables}{10}{section.3.7}%
+\contentsline {section}{\numberline {3.8}List of Figures and Tables}{11}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Equations}{11}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Source Code, Pseudocode}{12}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Further Directories}{13}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Creating a Glossary}{13}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Creating a List of Abbreviations}{14}{subsection.3.11.2}%
+\contentsline {subsection}{\numberline {3.11.3}Creating a List of Symbols}{14}{subsection.3.11.3}%
+\contentsline {section}{\numberline {3.12}References}{14}{section.3.12}%
+\contentsline {section}{\numberline {3.13}Special Spaces and Signs}{15}{section.3.13}%
+\contentsline {section}{\numberline {3.14}Selecting the Basic Font}{15}{section.3.14}%
+\contentsline {section}{\numberline {3.15}Metadata for the pdf Viewer}{16}{section.3.15}%
+\contentsline {section}{\numberline {3.16}Switch Between Single and Double-sided Layout}{16}{section.3.16}%
+\contentsline {section}{\numberline {3.17}Compile}{16}{section.3.17}%
+\contentsline {section}{\numberline {3.18}This Template}{17}{section.3.18}%
+\contentsline {chapter}{\numberline {4}Citations and References}{19}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Citations}{19}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}References}{19}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Ibid}{20}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Secondary Quotations}{20}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Citing Figures and Tables}{20}{subsection.4.1.4}%
+\contentsline {section}{\numberline {4.2}Bibliography}{21}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Content and Order of the Bibliography}{21}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}References in the Bibliography}{21}{subsection.4.2.2}%
+\contentsline {chapter}{\nonumberline Bibliography}{23}{chapter*.5}%
+\contentsline {chapter}{\nonumberline Appendix}{26}{chapter*.6}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

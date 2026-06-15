@@ -1,0 +1,105 @@
+\chapter{Introduction}
+%
+\label{chap:Introduction}
+%
+\section{Motivation}
+%
+Modern industrial companies accumulate thousands of service tickets every year.
+A single ticket at an agricultural machinery manufacturer such as Amazone~Werke
+can span dozens of email exchanges, multi-page PDF invoices, spreadsheet attachments,
+and scanned delivery notes—all in a mix of German, English, and occasionally French
+or Dutch. Extracting actionable information from this heterogeneous corpus manually
+is slow, inconsistent, and impossible to scale.
+
+Advances in Large Language Models~(LLMs) offer a promising alternative. Models
+such as Llama~3, Gemma~3, and GPT-4o have demonstrated strong zero-shot
+capabilities in information extraction and text classification, even in specialised,
+domain-specific settings. However, applying these models to real-world industrial
+service data—with its multilingual content, verbose email threads, and
+domain-specific abbreviations—requires a principled experimental evaluation that
+is largely absent from the academic literature.
+
+This thesis addresses that gap. It designs and evaluates an end-to-end pipeline that
+(1)~converts raw ticket files into a unified textual representation, (2)~uses LLMs
+to extract structured insights~(problem statement, solution, entity identifiers, and
+categorical tags), and~(3)~rigorously benchmarks ten model configurations against
+human-annotated ground truth.
+
+%----------------------------------------------------------------------
+\section{Problem Statement}
+\label{sec:problem}
+%
+Service tickets at Amazone~Werke exhibit several properties that make automated
+analysis challenging:
+
+\begin{itemize}
+    \item \textbf{Unstructured, heterogeneous content.} Important details are spread
+          across email bodies~(MSG), PDF documents~(credit notes, inspection reports),
+          Excel spreadsheets, and scanned images.  No consistent schema exists.
+
+    \item \textbf{Multi-lingual text.} The same ticket may contain paragraphs in
+          German, English, and technical abbreviations from both languages.
+          Standard NLP tools optimised for a single language fail to process
+          such code-switched content reliably.
+
+    \item \textbf{Mixed structured and narrative information.} Document
+          categories~(Gutschrift, Belastungsanzeige), article codes, and machine
+          serial numbers follow predictable patterns that rule-based extraction
+          handles well.  The underlying problem, root cause, and resolution require
+          contextual reasoning that rules cannot provide.
+
+    \item \textbf{Volume and scalability.} The corpus comprises tens of thousands
+          of tickets.  Manual analysis is not feasible; any automated system must
+          process tickets with minimal human intervention.
+
+    \item \textbf{Incomplete written records.} Many ticket resolutions are agreed
+          upon in phone calls or meetings, leaving the written record incomplete.
+          Models must reason under uncertainty without hallucinating solutions.
+\end{itemize}
+
+%----------------------------------------------------------------------
+\section{Research Questions}
+\label{sec:rq}
+%
+The thesis is structured around one main research question and two sub-questions.
+
+\begin{description}
+    \item[\textbf{RQ~(Main):}] \emph{Can Large Language Models reliably extract
+          actionable insights from industrial service tickets?}
+
+    \item[\textbf{RQ\,1:}] \emph{Which ticket information can be captured reliably
+          with rule-based extraction, and which parts require LLMs?}
+
+    \item[\textbf{RQ\,2:}] \emph{Which LLM produces the most useful and coherent
+          insights on the benchmark tickets?}
+\end{description}
+
+%----------------------------------------------------------------------
+\section{Scope and Delimitations}
+\label{sec:scope}
+%
+This thesis focuses on the \emph{extraction} of structured information from existing
+ticket files; it does not cover automated ticket routing, priority prediction, or
+resolution recommendation.  The evaluation is conducted on a benchmark of
+250~tickets drawn from the Amazone~Werke service corpus; generalisation to other
+industrial domains is discussed qualitatively in Chapter~\ref{chap:Conclusion}.
+
+Models are evaluated in a zero-shot configuration using a fixed, domain-aware prompt.
+Fine-tuning and retrieval-augmented generation~(RAG) are left as directions for
+future work.
+
+%----------------------------------------------------------------------
+\section{Thesis Structure}
+\label{sec:structure}
+%
+The remainder of this thesis is organised as follows.
+Chapter~\ref{chap:RelatedWork} reviews related work on LLM-based information
+extraction, service ticket analysis, and multi-label text classification.
+Chapter~\ref{chap:Methodology} describes the overall methodology, including the
+preprocessing pipeline, benchmark construction, and the experimental setup.
+Chapter~\ref{chap:Results} presents the quantitative results and qualitative
+observations.
+Chapter~\ref{chap:Discussion} interprets the findings and discusses the
+limitations of the approach.
+Chapter~\ref{chap:Conclusion} summarises the findings, answers the research
+questions, and outlines directions for future work.

@@ -1,0 +1,253 @@
+\chapter{Code Appendix}
+%
+\label{chap:CodeAppendix}
+%
+This appendix contains key code implementations from the thesis project. The complete source code is available in the project repository.
+
+\section{Document Conversion Module}
+%
+\subsection{PDF Text Extraction}
+%
+The following code demonstrates PDF text extraction using PyMuPDF:
+
+\begin{verbatim}
+import fitz  # PyMuPDF
+import os
+
+def extract_pdf_text(pdf_path):
+    """Extract text from PDF using PyMuPDF"""
+    text = ""
+    try:
+        doc = fitz.open(pdf_path)
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+    except Exception as e:
+        print(f"Error processing {pdf_path}: {e}")
+    return text
+
+# Usage
+pdf_text = extract_pdf_text("document.pdf")
+\end{verbatim}
+
+\section{Language Detection Module}
+%
+\subsection{Langdetect Integration}
+%
+Language detection using the langdetect library:
+
+\begin{verbatim}
+from langdetect import detect, LangDetectException
+
+def detect_language(text):
+    """Detect language of text"""
+    try:
+        language = detect(text)
+        return language
+    except LangDetectException:
+        return "unknown"
+
+# Usage
+text = "Dies ist ein deutscher Text."
+lang = detect_language(text)
+print(f"Detected language: {lang}")
+\end{verbatim}
+
+\section{Database Operations}
+%
+\subsection{SQLite Database Schema}
+%
+Creating and populating the document database:
+
+\begin{verbatim}
+import sqlite3
+
+def create_document_database(db_path):
+    """Create database for document metadata"""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS documents (
+            id INTEGER PRIMARY KEY,
+            file_name TEXT NOT NULL,
+            original_format TEXT,
+            jahr TEXT,
+            language TEXT,
+            processing_date TIMESTAMP,
+            content_length INTEGER
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+# Usage
+create_document_database("documents.db")
+\end{verbatim}
+
+\subsection{Data Aggregation}
+%
+Aggregating document statistics:
+
+\begin{verbatim}
+import sqlite3
+import pandas as pd
+
+def aggregate_statistics(db_path):
+    """Aggregate document statistics by year"""
+    conn = sqlite3.connect(db_path)
+    
+    query = '''
+        SELECT jahr, original_format, COUNT(*) as count
+        FROM documents
+        GROUP BY jahr, original_format
+        ORDER BY jahr, count DESC
+    '''
+    
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    
+    return df
+
+# Usage
+stats = aggregate_statistics("documents.db")
+print(stats)
+\end{verbatim}
+
+\section{Visualization Module}
+%
+\subsection{Matplotlib Chart Generation}
+%
+Creating analysis visualizations:
+
+\begin{verbatim}
+import matplotlib.pyplot as plt
+import pandas as pd
+
+def plot_format_distribution(data_dict):
+    """Create stacked bar chart of format distribution"""
+    fig, ax = plt.subplots(figsize=(14, 7))
+    
+    # Prepare data
+    years = sorted(data_dict.keys())
+    formats = set()
+    for year_data in data_dict.values():
+        formats.update(year_data.keys())
+    formats = sorted(list(formats))
+    
+    # Create stacked bars
+    bottom = [0] * len(years)
+    for fmt in formats:
+        values = [data_dict[year].get(fmt, 0) for year in years]
+        ax.bar(years, values, label=fmt, bottom=bottom)
+        bottom = [bottom[i] + values[i] for i in range(len(years))]
+    
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Document Count')
+    ax.set_title('Document Format Distribution by Year')
+    ax.legend()
+    
+    plt.tight_layout()
+    plt.savefig('format_distribution.png', dpi=150)
+    plt.show()
+\end{verbatim}
+
+\section{Complete Processing Pipeline}
+%
+\subsection{End-to-End Example}
+%
+Complete processing example combining modules:
+
+\begin{verbatim}
+import os
+from pathlib import Path
+
+def process_document_collection(input_dir, output_dir, db_path):
+    """Complete document processing pipeline"""
+    
+    # Create database
+    create_document_database(db_path)
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Process all documents
+    for file_path in Path(input_dir).rglob("*"):
+        if file_path.is_file():
+            # Extract text based on format
+            if file_path.suffix.lower() == '.pdf':
+                text = extract_pdf_text(str(file_path))
+            else:
+                # Handle other formats
+                continue
+            
+            # Detect language
+            language = detect_language(text)
+            
+            # Store metadata
+            cursor.execute('''
+                INSERT INTO documents 
+                (file_name, original_format, language, processing_date)
+                VALUES (?, ?, ?, datetime('now'))
+            ''', (file_path.name, file_path.suffix, language))
+    
+    conn.commit()
+    conn.close()
+    
+    # Generate statistics and visualizations
+    stats = aggregate_statistics(db_path)
+    print(f"Processed {len(stats)} documents")
+
+# Usage
+process_document_collection(
+    "input_documents/",
+    "output_markdown/",
+    "documents.db"
+)
+\end{verbatim}
+
+\section{Jupyter Notebook Integration}
+%
+The main analysis is performed in the \texttt{Analysis.ipynb} Jupyter notebook, which provides:
+
+\begin{itemize}
+    \item Interactive exploration of document statistics
+    \item Dynamic visualization generation
+    \item Memory monitoring and resource management
+    \item Comprehensive error handling and logging
+    \item Progress indicators for batch operations
+\end{itemize}
+
+The notebook integrates all modules and provides a user-friendly interface for analyzing document collections.
+
+\section{Dependencies and Requirements}
+%
+Key Python packages used:
+
+\begin{itemize}
+    \item \texttt{pymupdf}: PDF processing
+    \item \texttt{python-docx}: DOCX format handling
+    \item \texttt{langdetect}: Language detection
+    \item \texttt{pandas}: Data manipulation
+    \item \texttt{matplotlib}: Visualization
+    \item \texttt{sqlite3}: Database operations
+    \item \texttt{psutil}: System monitoring
+\end{itemize}
+
+Installation via pip:
+
+\begin{verbatim}
+pip install pymupdf python-docx langdetect pandas matplotlib psutil
+\end{verbatim}
+
+\section{Configuration and Customization}
+%
+The pipeline is highly customizable through:
+
+\begin{itemize}
+    \item Configuration files specifying document types and formats
+    \item Database schema adjustments for additional metadata
+    \item Visualization customization through matplotlib parameters
+    \item Filter parameters for language and format selection
+    \item Process parameters for memory and performance tuning
+\end{itemize}

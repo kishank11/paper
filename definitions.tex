@@ -1,0 +1,109 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Globale Definitionen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%=== pdf Metadaten ============================================================
+\hypersetup{
+	pdfauthor={Krish Kanoji},
+	pdftitle={Extracting Insights from Service Tickets Using Large Language Models},
+	pdfsubject={Bachelor Thesis},
+	pdfkeywords={%
+		Large Language Models,
+		Service Tickets,
+		Information Extraction,
+		NLP,
+		Ollama,
+		Tag Classification,
+	},
+	bookmarksnumbered=true,
+	pdfstartview=FitH,
+	hidelinks,
+}
+
+%=== Vorwort vor Literatur ====================================================
+\defbibnote{mynote}{%
+	As explained in  \cref{sec:bib-content}, only the sources that are actually 
+	referenced in a paper are listed in the bibliography. Therefore, please 
+	always check the bibliography of your paper to ensure that all sources
+	cited~--~and only these~--~have been included. This does not apply to the 
+	following list; most of the sources listed here are not cited in this
+	template. This is merely an example of a bibliography with recommended 
+	reading for academic writing.
+	
+}
+
+%=== Name für Inhaltsverzeichis ===============================================
+\renewcaptionname{USenglish}{\contentsname}{Content}
+
+%=== Kopf-/Fusszeile definieren ===============================================
+\clearpairofpagestyles
+\ohead[]{\headmark}
+\ofoot[\pagemark]{\pagemark}
+
+%=== Farben definieren ========================================================
+\definecolor{THRed}{RGB}{207,24,32}
+\definecolor{THOrange}{RGB}{236,101,37}
+\definecolor{THPurple}{RGB}{175,54,140}
+
+%=== Einstellungen für cref ===================================================
+%\newcommand{\crefpairconjunction}{ und~}
+%\newcommand{\crefrangeconjunction}{ bis~}
+
+
+%=== Einstellungen für plots ==================================================
+\pgfplotsset{
+	compat=newest,
+	/pgf/number format/.cd,
+	dec sep={\text{,}},
+	1000 sep={\,},
+}
+
+%=== Einstellungen für listings ===============================================
+\lstdefinestyle{myLaTeX}{
+	basicstyle=\footnotesize\ttfamily,
+	language=TeX,
+	keywordstyle=\color{blue},
+	frame=single,
+	backgroundcolor=\color{gray!10},
+	tabsize=2,
+	morekeywords={
+		lstdefinestyle,
+		footnotesize,
+		ttfamily,
+		color,
+	},
+}
+
+\lstdefinestyle{myBasic}{
+	basicstyle=\footnotesize\ttfamily,
+	frame=single,
+	escapechar={|_},
+	backgroundcolor=\color{white},
+	keywordstyle=\color{black},
+}
+
+\lstset{style=myLaTeX}
+
+%\lstset{language=Python, basicstyle=\small, frame=single, numbers=left, xleftmargin=2em, framexleftmargin=1.5em}
+%\renewcommand{\lstlistingname}{Algorithmus}
+
+
+%=== paar convenience Sachen definieren =======================================
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\vecW}{\ensuremath{\mathbf{w}}}%
+\newcommand{\ci}{\ensuremath{\mathrm{i}}}%
+%
+\newcommand{\tb}{\textbackslash}
+%
+\newcommand{\comm}[1]{\enquote{\texttt{\tb #1}}}
+%
+\newcommand{\param}[1]{%
+	$\langle$\textrm{\textit{#1}}$\rangle$%
+}
+
+%=== Arial als Hauptschriftart ================================================
+%\setsansfont{Arial}
+%\renewcommand{\familydefault}{\sfdefault}
+
+%=== keine größeren Leerzeichen nach Punkt (bei englischer Spracheinstellung) ==
+\frenchspacing

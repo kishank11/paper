@@ -1,0 +1,593 @@
+\chapter{Layout: Typesetting with \LaTeX}
+\label{chap:Textsatz}
+It is relatively easy to create documents with \LaTeX{} that meet professional 
+standards. A decisive advantage is that the user contributes almost only the 
+content, while the correct external form is then generated automatically.
+\LaTeX{} is based on \TeX, which was developed by
+Donald Knuth~\cite{knuth:tex}. Some further advantages over conventional word 
+processing are:
+\begin{description}
+	\item[Free/platform-independent:] \LaTeX{} is free software. No proprietary 
+	editor is required to write \LaTeX{} documents. In fact, the documents can 
+	be edited on \emph{any} computer with \emph{any} editor.
+	%
+	\item[Pure text format:] The source text~--~the \texttt{tex} file~--~is a 
+	pure text format. This makes \LaTeX{} documents ideal for version control 
+	with git, for example. This in turn enables efficient collaboration between 
+	multiple authors.
+	%
+	\item[Splitting large documents:] The source text of large documents, such 
+	as project work, can be split into several files. Thus several people can 
+	each work on a separate chapter. Due to the two points above, there are no 
+	compatibility problems
+	%
+	\item[Separating layout/content:] With \LaTeX{}, you can explicitly define 
+	the layout for the entire document~--~or the document class used implicitly 
+	takes care of this. Style sheets of modern word processing provides 
+	corresponding functionalities but the programmatic approach with \LaTeX{} 
+	allows you to influence the layout even more precisely. Then you can 
+	concentrate fully on writing.
+	%
+	\item[Professional result:] A document created with \LaTeX{} looks more 
+	professional than a corresponding document created with word processing. 
+	This is especially true for math-heavy documents. But other documents can 
+	also benefit from a uniform layout, consistent gray value of the continuous 
+	text, more consistent page breaks and high-quality vector graphs - to name 
+	just a few points.
+	%
+	\item[Versatile:] LATEX can be used to create more than just 
+	\enquote{simple} documents. There are countless document classes that can 
+	also be used to create presentations or posters, for example.
+\end{description}
+
+The following \crefrange{sec:hood}{sec:template} deal with various aspects that 
+you should consider when creating your document.
+%
+\section{Under the hood}
+\label{sec:hood}
+In your \TeX{} documents, you define what your content is (text with structure, 
+images, tables, references, ...) and how it should roughly look in each case 
+(e.g. placement of images using \emph{floating environments}, see 
+\cref{sec:figures}).
+
+When creating the final document, \LaTeX{} applies a whole host of rules
+\enquote{under the hood} that determine how everything can be implemented in 
+the best possible way. These rules concern, for example, the proportion of text 
+and images per page, spacing within lines, but also special cases such as 
+avoiding individual lines of a section alone on a page (so-called
+\enquote{orphans} or \enquote{widows}).
+
+As a result, for example, your illustrations might \enquote{jump} while you are 
+working on your text. This may well be correct and can be optimized at the end 
+if necessary.
+
+In this context, avoid interfering with the design process, e.g. by manually 
+inserting line breaks (\comm{newline} oder \comm{\textbackslash}) or spacing. 
+Please only make exceptions in justified cases, as in this template for the 
+design of the cover page.
+
+Further information on how you can continue working with this template can be 
+found in  \cref{sec:template}.
+
+\section{Headings}
+\label{sec:headings}
+In this template, we use the chapter (\comm{chapter}) as the highest level of 
+structure. This is followed by sections (\comm{section}) and subsections  
+(\comm{subsection}). These three levels are numbered and appear in the table of 
+contents. If you want to structure your text further, there is also the 
+\comm{paragraph}-command.
+
+Please note that two headings should never directly follow each other in the 
+text. A heading should always be followed by some text (see, for example, the 
+beginnings of the chapters here on \cpageref{chap:formal} and
+\cpageref{chap:Textsatz}). For further information, see 
+\cref{sec:listOfContents}.
+
+\section{Paragraphs}
+Places in the text where a new paragraph should begin can be marked in the 
+source code with  \comm{par}The exact appearance of these paragraphs in the 
+finished document is determined by the parameter \comm{parskip} in the document 
+class~--~more on this in \cref{sec:template}. This is a major advantage of  
+\LaTeX{}: the style can be easily changed at any time for the entire document.
+
+Note: You will also get the same results iy you leafe a blank line in the 
+source code instead of using the \comm{par} command. You may like this even 
+better
+
+\section{Hyphenation}
+\label{sec:hyphenation}
+The automatic hyphenation in  \LaTeX{} works well in principle. However, there 
+can always be minor problems and undesired results. If you want to influence 
+the hyphenation for a specific word, you can use the  \comm{hyphenation} 
+command to manually specify the permitted hyphenation location. This allows you 
+to ensure that certain words are never hyphenated, for example proper names.
+
+For example, words containing a hyphen are \emph{only} separated there, which 
+can lead to lines not being displayed correctly, resulting in a warning (see  
+\cref{sec:compilation}). In such cases, you would have to specify additional 
+separators manually in the source code.
+
+\section{Enumerations}
+Use the environments
+%
+\begin{itemize}
+ \item \comm{begin\{itemize\}} \ldots \comm{end\{itemize\}}
+ \item \comm{begin\{enumerate\}} \ldots \comm{end\{enumerate\}}
+ \item \comm{begin\{description\}} \ldots \comm{end\{description\}}
+ \item \comm{begin\{labeling\}} \ldots \comm{end\{labeling\}}
+\end{itemize}
+%
+to create attractive lists. Here too, the exact appearance is set globally in 
+the document; you can change this at any time, more on this in  
+\cref{sec:template}.
+
+\section{Illustrations}
+\label{sec:figures}
+%
+When someone looks at your finished thesis, it may well be that they first leaf 
+through it roughly, hardly reading the text but looking at the illustrations. 
+Hence the \enquote{rule} that you should be able to understand the most 
+important points of the thesis in this way.
+
+Illustrations never stand alone but are described by the \emph{caption}. It 
+should contain everything that is necessary to understand the illustration. 
+Only in exceptional cases must the caption refer to the text. Conversely, each 
+figure must be referenced at least once in the text, see also 
+\cref{sec:references}.
+
+In the following two sections, a distinction is made between images (in  
+\cref{sec:images}) and vector graphs (in \cref{sec:vectorGraphcis}), as these 
+are completely different techniques that should be used appropriately in each 
+case.
+
+Remember that not everyone can see all colors equally well. Around 10\,\% of 
+men in Germany, for example, are affected by red-green color-blindness. Your 
+thesis may also be printed in black and white. Therefore, you should ideally 
+design illustrations in such a way that they are understandable even without 
+colors.
+
+\subsection{Images}
+\label{sec:images}
+%
+You can include images with  \comm{includegraphics}. It is sufficient (and even 
+recommended!) to specify the file name without an extension and without a path. 
+When compiling, all directories specified in \comm{graphicspath} are searched. 
+As a rule, an image should not appear alone in the document, but in an
+%
+\begin{figure}[tbh]
+ \centering
+ \includegraphics[width=0.35\textwidth]{ThkKunst}
+ \caption{Perhaps this is art?}
+ \label{fig:kunst}
+\end{figure}
+%
+environment which ensures automatic numbering, adds a caption and finally 
+enables the figure to be placed in an optimal position (hence the term  
+\enquote{floating environment}). In this case, this is the \comm{figure} 
+environment.
+
+For the environment, we set where it may appear (see also \cref{sec:hood}). 
+Here \texttt{t} stands for the top of the page, \texttt{b} for the bottom and 
+\texttt{h} for \enquote{here}, which means the positioning within the text. If 
+you need to save space, \texttt{t} and \texttt{b} are preferable.
+
+Attention: Many contents such as formulas, code, diagrams, visualization of 
+data, etc. should not be inserted as an image, but in a suitable form. See the 
+following section on vector graphs.
+
+\subsection{Vector Graphs}
+\label{sec:vectorGraphcis}
+%
+You do not need to insert simple illustrations (e.\,g. coordinate systems, 
+flowcharts, etc.) as an image. Instead, you can generate them directly in the 
+source code. The powerful \enquote{\texttt{tikz}} package is ideal for this.
+
+One advantage is that your document remains smaller. Another is that the 
+illustrations usually look more attractive. This is especially true when 
+viewing on a screen, as vector graphs can be scaled to any size. This even 
+allows you to display your data,  e.\,g. from experiments, separately and 
+generate corresponding images dynamically from them. See the example in
+\cref{fig:plotFleuret}.
+\begin{figure}[tbh]
+\centering
+\input{tikz/figFleuret}
+\caption{A beautiful graphic generated in the source code!}
+\label{fig:plotFleuret}
+\end{figure}
+
+You can of course find lots of examples of TikZ on the Internet. There is also 
+an up-to-date book ~\cite{kottwitz:tikz}.
+
+\section{Tables}
+\label{sec:tables}
+
+Basically, tables in \LaTeX{} are created with the \comm{tabular} environment . 
+This is
+then just the table itself, without numbering and without a caption. The 
+principle is therefore the same as for images (see above): First the environment 
+(here \comm{table}), in it the table itself.
+%
+\begin{table}[tbh]
+ \centering
+ \begin{tabular}{r|r}
+ Überschrift links & Überschrift rechts\\
+ \hline
+ 1   & 2222\\
+ 10  & 222\\
+ 100 & 22
+ \end{tabular}
+ \caption{A simple table}
+ \label{tab:example}
+\end{table}
+%
+Perhaps the commands \texttt{rowcolor} or \texttt{multicolumn} will be useful 
+for you at some point. There are many other packages that help to create even 
+more attractive tables, for example \texttt{array}, \texttt{booktabs} and 
+\texttt{tabularx}.
+
+\section{List of Figures and Tables}
+\label{sec:captions}
+\LaTeX{} allows you to create figure and table directories automatically. All 
+entries for which you have correctly created floating environments will appear 
+accordingly (see \cref{sec:images} und~\ref{sec:tables}).
+
+The text from the \texttt{caption} is used by default for these directories. 
+This description is often too long. You can therefore opt to specify a shorter 
+version in square brackets in the caption. See also \cref{sec:refFigures}.
+
+\section{Equations}
+\label{sec:formulas}
+One of the greatest strengths of \LaTeX{} is that you have many possibilities to 
+write down formulas simply and beautifully. In this context, the 
+\enquote{\texttt{amsmath}} package is
+particularly popular because it offers so many possibilities. Here is just a 
+small example with the \enquote{\texttt{align}} environment:
+%
+\begin{align}
+ \sum \limits_{i=1}^{n} i &= \mathcolor{THRed}{1} + \mathcolor{blue}{2} + \ldots + \mathcolor{blue}{(n-1)} + \mathcolor{THRed}{n} \label{eq:gauss}\\
+                          &= \mathcolor{THRed}{(1 + n)} + \mathcolor{blue}{(2 + (n-1))} + \ldots\\
+                          &= \frac{1}{2} \cdot (n+1)
+\end{align}
+%
+However, simple formulas in the text such as $x \in \mathbb{N}$ are of course 
+also possible. A common mistake here is that the \enquote{math mode} is 
+forgotten in the text: We are talking about the $x$-value and \emph{not} the 
+x-value.
+
+The error is just as common the other way round, i.\,e. text is written in math 
+mode: $a_{wrong} = 42$, but $a_{\mathit{correct}} = 42$, perhaps also 
+$a_{\text{correct}} = 42$.
+
+Functions such as~$\sin$ are automatically displayed well, as in
+%
+\begin{equation}
+\sin \alpha = \left( \frac{a}{c} \right)
+\end{equation}
+%
+The brackets have only been inserted here to demonstrate the corresponding
+mechanism: automatic scaling of brackets!
+
+Sometimes you want to use your own  \enquote{Operator} that should look the 
+same. This is exactly what the \comm{DeclareMathOperator} command is for, 
+allowing you to add missing functions such as~$\sgn(x)$.
+
+It is advisable to give all mathematical symbols that you use in your work
+meaningful names in the source code; the easiest way to do this is with the
+\comm{newcommand} command. You can then customize how you want to use the weight
+vector~$\vec{W}$ in the entire document or what the imaginary unit~$\ci$ 
+with~$\ci^2 = -1$ should look like. Of course, this assumes that you use the 
+designations consistently. However, this also makes your source code easier to 
+read!
+
+\section{Source Code, Pseudocode}
+\label{sec:listing}
+%
+%Bitte beachten Sie, dass sich \emph{Pseudocode} vermutlich besser mit dem \texttt{algorithm2e}-Paket darstellen lässt, als mit dem \texttt{listings}-Paket, das in diesem Beispiel hier (Algorithmus~\ref{lst:quicksort}) benutzt wird.
+%
+If a section of the source code is to be displayed in the final thesis, the 
+obvious idea is to simply take a screenshot of it and display it via  
+\texttt{\tb includegraphics} as an image. However, this is not a good idea as 
+when the finished document is zoomed in, the displayed source text immediately 
+pixelates. However, \LaTeX{} offers a more elegant alternative: The  
+\texttt{listings} package for displaying source text~--~directly in the source 
+text of the \LaTeX{} document or read directly from an external file.
+
+The source text can be entered directly in the \LaTeX{} document using the 
+\texttt{lstlisting} environment. The command
+\texttt{\tb lstinputlisting\{\param{file}\}} can be used to read and display the 
+source text from an external \param{file}. Attention: The path to the 
+\param{file}, relative to the \LaTeX{} document must be specified.
+
+The layout of the source text displayed in the finished document can also be 
+influenced. There is a  \emph{key-value interface} for this purpose which can be 
+used to influence things such as the font to be used or the background color 
+with the help of special \emph{keys} The command
+\texttt{\tb lstdefinestyle\{\param{style}\}} is used for this purpose. Here, 
+\param{style} is a list of several pairs of the form 
+\texttt{\param{key}=\param{value}}, which are separated from each other by a 
+comma. An example can be found in the preamble of this template, in the 
+\texttt{definitions.tex} file. For further information, please refer to the 
+documentation of the package. An example of such a source text generated with 
+the \texttt{lstlisting} environment is given in  \cref{fig:listing}.
+%
+\begin{figure}[htb]
+	\centering
+	\begin{minipage}{.485\textwidth}
+		\begin{lstlisting}
+\lstdefinestyle{myLaTeX}{
+	language=TeX,
+	basicstyle=\footnotesize\ttfamily,
+	frame=single,
+	backgroundcolor=\color{gray!10},
+}
+		\end{lstlisting}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.485\textwidth}
+		\begin{lstlisting}[style=myBasic]
+\begin{lstlisting}
+\lstdefinestyle{myLaTeX}{
+	language=TeX,
+	basicstyle=\footnotesize\ttfamily,
+	frame=single,
+	backgroundcolor=\color{gray!10},
+}
+|_\texttt{\tb}|_end{lstlisting}
+		\end{lstlisting}
+	\end{minipage}
+	\caption[Example of a listing]{%
+		Example of a listing that has been created using the 
+		\texttt{lstlisting} environment. The finished listing is shown on the 
+		left and the corresponding source code that leads to the output is shown 
+		on the right. Coincidentally, this is an excerpt of the style used in 
+		this template.
+	}\label{fig:listing}
+\end{figure}
+%
+%
+\section{Further Directories}
+Additional directories can be created using the \texttt{glossaries} package. A 
+glossary and a list of abbreviations or symbols can be created directly. 
+Additional directories can also be defined. If you want to utilize the full 
+potential of \texttt{glossaries} , you will need Perl on the computer and the 
+Perl script \texttt{makeglossaries}. However, there is also a  
+\enquote{mashed-up} version with somewhat limited functionality which works 
+completely without Perl and an external script. Please refer to the 
+documentation of the package for this.
+
+By using the \texttt{toc} option when loading \texttt{glossaries}, the 
+additional directories also appear in the table of contents. If the 
+\texttt{hyperref} package continues to be used, the entries of these 
+directories’ output in the text are links that lead directly to the 
+corresponding directory. The directories themselves can then be displayed at the 
+desired position in the document using the 
+\texttt{\tb printglossaries} command. Again, please refer to the package 
+documentation for further information.
+
+\subsection{Creating a Glossary}
+A glossary can be used directly without any further provisions. An entry in the 
+glossary can then be defined using the command
+\texttt{\tb newglossaryentry\{\param{label}\}\{\param{specification}\}}.
+Here, \param{specification} is a \emph{key-value} list.
+The most important \emph{keys} are \texttt{name} and \texttt{description}, which 
+are used to specify the name and description of the entry to be defined. The 
+previously defined term can then be displayed in the text using the command  
+\texttt{\tb gls\{\param{label}\}} Want an example? The
+\gls{dog} is man's best friend.
+
+
+\subsection{Creating a List of Abbreviations}
+To be able to use a list of abbreviations, \texttt{glossaries} must be set with 
+the option texttt{acronym}. An abbreviation can then be defined in the preamble 
+using the command \texttt{\tb 
+newacronym\{\param{label}\}\{\param{abbreviation}\}\{\param{written out}\}}  
+The previously defined abbreviation can then be displayed in the text using the 
+command \texttt{\tb gls\{\param{label}\}}. \LaTeX{} then automatically ensures 
+that the abbreviation is written out the first time it is mentioned in the text. 
+For all subsequent mentions, only the abbreviation is then displayed. Want an 
+example? This is a \gls{svm}. And here is another \gls{svm}. 
+
+\subsection{Creating a List of Symbols}
+To be able to use a list of symbols, \texttt{glossaries} must be set with the 
+option \texttt{symbols}. A symbol can then be defined in the preamble using the command
+\texttt{\tb newglossaryentry\{\param{label}\}\{\param{specification}\}}.
+The command is exactly the same as for the glossary. In addition, 
+\texttt{type=symbols} must be specified for \param{specification}.
+The command \texttt{\tb gls\{\param{label}\}} can then be used to display the 
+previously defined symbol in the text. Need an example? The force  
+\gls{sym:force} is defined according to the following equation:
+\begin{equation*}
+	\gls{sym:force}=m\cdot \vec{a}
+\end{equation*}
+
+
+\section{References}
+\label{sec:references}
+Set markers in your source code with the \comm{label} command. The placement
+indicates the numbering to which the label refers, e.g. the level (see
+\cref{sec:headings}), table (see \cref{sec:tables}), figure (see 
+\cref{sec:figures}) or equation (see \cref{sec:formulas}). All of these are
+numbered separately, which can take some getting used to at first.
+
+You can then refer to the marked locations with the  \comm{ref}command, whereby 
+this only provides the appropriate number. You would then have to add the 
+appropriate name, e.\,g. \enquote{Figure}, yourself. We have therefore included 
+the \texttt{cleveref} package here, which automates the latter step.
+
+Every figure and every table must be referenced in the text; no numbered
+environments may simply \enquote{hang in the air}. In contrast, sections and 
+equations do not all have to be explicitly referenced. However, you can help 
+your readers by thinking about meaningful references.
+
+\section{Special Spaces and Signs}
+\label{sec:specialCases}
+A line break (or even a page break) can always occur at spaces. This should be 
+avoided in some cases, partly because lines should not start with numbers. A 
+typical example is \enquote{Lange Straße~123}. Here you need a so-called 
+protected space after \enquote{Straße} which is created with a tilde.
+
+Just as floating environments are optimally distributed (see \cref{sec:hood}), 
+horizontal spacing between words and sentences in \LaTeX{} is also dynamically 
+adjusted in each line. All dots are interpreted as the end of a sentence. In the 
+case of abbreviations such as \enquote{e.\,g.}, this does not look nice, the 
+space is too large. In this case, a half space must be created manually in the 
+middle with \comm{,}. If you find typing such constructs too cumbersome, you can 
+use define your own commands such as \comm{eg}. To define your own commands, see 
+\cref{sec:formulas}.
+
+As with spaces, there are also different lengths for horizontal dashes. For 
+dashese~--~here, for example~--~or if \enquote{to} is meant (as in 
+14:00--16:00), the single hyphen (minus sign) is not sufficient, the appropriate 
+space is simply created in \LaTeX{} by a double minus.
+
+All characters that have a function in \LaTeX{} are problematic in the source 
+code: Percent sign \%, ampersand \&, underscore \_, curly brackets \{\ldots\} 
+are typical examples. These must be entered in the source code with a backslash, 
+otherwise you will receive error messages.
+
+\section{Selecting the Basic Font}
+By default, \LaTeX{} uses a serif font for continuous text. Serif fonts are 
+advantageous for printed work because the serifs emphasize the baseline and thus 
+help the eye to jump back to the beginning of the next line at the end of the 
+line. In addition, the different stroke widths lead to clearer word images and 
+thus support the reading process.
+
+However, if such a document is viewed on an old monitor with a low resolution, 
+the fine serifs may no longer be displayed properly. In such a case, it may be 
+advantageous to use a sans serif font. It may also be that sans serif fonts are 
+preferred for reasons of accessibility.
+
+In this case, the command 
+\texttt{\tb renewcommand\{\tb familydefault\}\{\tb sfdefault\}} can be
+used to specify a sans-serif font as the base font. If you use 
+\texttt{lualatex} for compilation and the \texttt{fontspec} package, you can 
+also access all available fonts. If the  Arial font is available on the 
+computer, the command 
+\texttt{\tb setsansfont\{Arial\}} can be used to specify the Arial font as the 
+sans serif font. The two lines in question can be found at the end of the 
+\texttt{definitions.tex} file and only need to be commented out if required.
+
+\section{Metadata for the pdf Viewer}
+Some pdf viewers can display additional metadata, such as the name of the 
+author, the title of the document (also different from the name of the file) or 
+keywords. With the \texttt{hyperref} package, this metadata can be displayed 
+with the command \texttt{\tb hypersetup\{\param{settings}\}}. Here, 
+\param{settings} is a key-value list. The most important keys are  
+\texttt{pdfauthor}, \texttt{pdftitle} and \texttt{pdfkeywords}. The meaning of 
+these keys is self-explanatory
+
+In addition, links in the document (when using the \texttt{hyperref} package)
+are highlighted as  colored boxes in some pdf viewers. Of course, these colored 
+boxes do not appear in the printed document. They only serve as an aid so that 
+you do not have to move the cursor over the document randomly until you have 
+found the link. If the colored boxes are annoying, you can deactivate them in 
+\texttt{\tb hypersetup} with the \texttt{hidelinks} key.
+
+\section{Switch Between Single and Double-sided Layout}
+This template is optimized for a one-page layout. The left and right margins are 
+the same size on all pages and new chapters start immediately on the next page. 
+When the finished pdf document is viewed on the computer, it looks just right. 
+However, if the document is to be printed double-sided, the layout can be 
+adjusted slightly. Typically, the inner margins are then slightly narrower than 
+the outer margins. New chapters always start on a new, right-hand page~--~which 
+can lead to individual blank pages between the chapters. This looks better for 
+double-sided documents.
+
+To activate the double-page layout, it is sufficient to remove the commenting 
+out of the \texttt{twoside}option in the optional argument of
+\texttt{\tb documentclass}.
+
+%
+\section{Compile}
+\label{sec:compilation}
+Creating (compiling) large documents with LATEX can take a relatively long time. 
+As you usually only work on a few parts at a time, it can therefore be useful to
+comment out the remaining parts. This is particularly easy if you separate text 
+into separate files and use the \comm{input} and\slash or \comm{include} 
+command. This also keeps the main document clear.
+
+Basically, the aim should be for your document to compile without warnings. The 
+best thing to do is to regularly take care of rectifying any problems.
+
+A typical warning is \enquote{\emph{Reference \ldots{} undefined}}. It may 
+disappear when you create it again, because only then will any new items be 
+known. If this warning remains, the problem must be fixed, otherwise you will 
+have question marks somewhere in the text.
+
+Warnings relating to boxes that are too full are sometimes more difficult to 
+understand and\slash or resolve. In \texttt{draft} mode (see 
+\cref{sec:template}), the relevant places are marked precisely, which can be a 
+great help. To avoid lines that are too long, it sometimes helps to mark 
+separators (see \cref{sec:hyphenation}). Otherwise, a sentence may have to be 
+minimally reworded.
+
+The \texttt{draft} mode also has the advantage that compiling is faster (see 
+above). Placeholders are inserted for images.
+
+\section{This Template}
+\label{sec:template}
+This template uses KOMA-Script, a \enquote{collection 
+of classes and packages for \LaTeX}\footnote{\texttt{https://komascript.de}}, 
+which supports in particular the creation of German texts with the corresponding 
+common typographical standards.
+
+Creating documents with \LaTeX{} is very similar to programming. An example: 
+Wherever a paragraph is to be created, we have used the \comm{par} command in 
+our \enquote{source code}. What exactly this command does is determined by its 
+implementation. And this results from the \texttt{parskip} parameter of the 
+document class, so to speak.
+
+Other settings that can be made directly in the document class relate to, for 
+example, the font size, the binding correction (\texttt{BCOR}) and the size of 
+(\texttt{headings}). In principle, you can also influence the size of the 
+margins with the \texttt{DIV} parameter, but this is not recommended. The 
+margins are automatically set so that lines have a length that is easy to read.
+
+%Here we have also selected the twoside option for double-sided printing. 
+%Therefore, the outside margins are different on even and odd pages. If you want 
+%to print your document single-sided, please change this.
+
+After defining the document class, we have integrated some packages in the 
+so-called Preamble, for example the \texttt{scrlayer-scrpage} package, with 
+which we can define the appearance of the footer and header. This template has 
+been set up so that the current chapter heading is always displayed at the top 
+%left and the current section heading at the top right in the headers of a double 
+%page (see \texttt{definitions.tex}).
+right of the current page (see \texttt{definitions.tex}).
+
+Several packages are included in this template. The function of the most 
+important of these is briefly explained below.
+%
+\begin{description}
+  \item[\texttt{fontspec}] Allows free choice of font (but only works when 
+  compiled with \texttt{lualatex})
+  %
+ \item[\texttt{babel}] Allows to select the default language and activates corresponding hyphenation patterns
+ %
+ \item[\texttt{selnolig}] Ensures that ligatures are automatically set correctly 
+ (but only works when using \texttt{fontspec} and thus also \texttt{lualatex}, 
+ automatically adopts the language setting of \texttt{babel})
+ %
+ \item[\texttt{microtype}] Optimizes the appearance of the text (type area)
+ %
+ \item[\texttt{csquotes}] Ensures that quotation marks are automatically set 
+ correctly (automatically adopts the language setting of \texttt{babel})
+ %
+ \item[\texttt{tikz} and \texttt{pgfplots}] This allows images to be generated 
+ directly in the source code, see \cref{sec:vectorGraphcis}
+ %
+ \item[\texttt{hyperref}] Clickable links in the PDF
+ %
+ \item[\texttt{biblatex}] Improved references and bibliography
+ %
+ \item[\texttt{amsmath} und \texttt{amssymb}] Great expansion of the 
+ possibilities for displaying mathematical content
+ %
+ \item[\texttt{listings}] For the representation of source code, see 
+ \cref{sec:listing}
+ %
+ \item[\texttt{cleveref}]Simplifies the insertion of references (see 
+ \cref{sec:references})
+ %
+ \item[\texttt{glossaries}] Convenient creation of a list of abbreviations
+\end{description}

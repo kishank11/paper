@@ -1,0 +1,316 @@
+\chapter{Methodology and Experimental Design}
+%
+\label{chap:Methodology}
+%
+This chapter describes the research design in five parts: the general approach
+(Section~\ref{sec:approach}), data preparation and pattern analysis
+(Section~\ref{sec:data-prep}), benchmark dataset construction
+(Section~\ref{sec:benchmark}), LLM setup and prompt design
+(Section~\ref{sec:llm-setup}), and the experimental protocol
+(Section~\ref{sec:experimental-protocol}).
+
+%----------------------------------------------------------------------
+\section{General Approach}
+\label{sec:approach}
+%
+The thesis follows a three-phase methodology:
+
+\begin{enumerate}
+    \item \textbf{Preprocessing.}  Raw ticket files~(MSG, PDF, DOCX, XLSX)
+          are converted to a unified Markdown~(\texttt{.md}) representation.
+          Structured fields are extracted with regular expressions; the remaining
+          narrative text is retained for LLM processing.
+
+    \item \textbf{Benchmark construction.}  A representative sample of
+          250~tickets is drawn from three ticket categories and annotated with
+          ground-truth tags by a human expert.  Two versions of each ticket
+          (with and without the ground-truth tags visible to the annotator)
+          yield a \emph{ground-truth~set}~(GS) and a \emph{blind-label~set}~(BL/LB).
+
+    \item \textbf{LLM evaluation.}  Ten model configurations are run on each
+          benchmark ticket using a two-call protocol: one call for
+          Problem/Solution/Entity extraction and one for blind tag generation.
+          Results are scored against the human annotations using F1 and via
+          an LLM-as-judge rubric.
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Data Preparation and Pattern Analysis}
+\label{sec:data-prep}
+%
+\subsection{Source Data}
+%
+The corpus consists of service tickets exported from the Amazone~Werke
+service system.  Each ticket is stored as a folder containing one or more
+files.  The folder name encodes the ticket identifier~(e.g.~\texttt{T250001234})
+and is grouped under a parent category prefix~(\texttt{T16}--\texttt{T25},
+corresponding to years 2016--2025).
+
+\subsection{File Conversion to Markdown}
+%
+All attachment types are converted to plain Markdown to create a uniform
+input format for the LLM.  The conversion strategy is:
+
+\begin{itemize}
+    \item \textbf{MSG~(email) files:} Headers~(From, To, Subject, Date)
+          are extracted and appended as a structured preamble; the email body
+          is normalised to plain text.  Nested reply chains are concatenated
+          in chronological order (oldest first). \textbf{A specific filter is
+          applied to remove quoted text in deep threads to minimize token
+          redundancy.}
+
+    \item \textbf{PDF files:} Text is extracted using \textbf{PyMuPDF4LLM}, which
+          preserves table structure and avoids common layout artefacts.
+          Pages are separated by horizontal rules. \textbf{For scanned
+          documents, an OCR-fallback layer using Tesseract is implemented.}
+
+    \item \textbf{DOCX / XLSX files:} Content is extracted using
+          \texttt{python-docx} and \texttt{openpyxl} respectively and
+          converted to Markdown tables or paragraph blocks.
+\end{itemize}
+
+Files that cannot be converted~(corrupted, password-protected, image-only PDFs)
+are skipped and logged; the remaining text files are combined into a single
+\texttt{.msg.md} file per ticket.
+
+\subsection{Token Budget Management and Cleaning}
+\label{subsec:cleaning}
+%
+Given the 128k context window of the target models, most email threads fit
+entirely.  However, to improve reasoning performance and reduce noise, a
+cleaning pass is applied:
+
+\begin{itemize}
+    \item \textbf{Duplicate Removal:} Consecutive replies that contain the same
+          quoted text are deduplicated to keep only the newest contribution.
+    \item \textbf{Signature and Footer Stripping:} Boilerplate text such as
+          disclaimers, office addresses, and social media links are removed
+          using pattern-based heuristic filters.
+    \item \textbf{System Notification Filtering:} Automated status change
+          notifications and "ticket received" confirmations are excluded as
+          they provide no semantic value for tag assignment.
+\end{itemize}
+
+This preprocessing reduces the average ticket context size by approximately
+30\,\%, ensuring the LLM focuses on the human narrative.
+
+\subsection{Rule-based Pattern Extraction}
+\label{subsec:regex}
+%
+An analysis of the PDF attachments revealed three recurring structured document
+categories that can be identified reliably with regular expressions:
+
+\begin{description}
+    \item[\textbf{Gutschrift}~(Credit Note):] Documents with the header pattern
+          \verb|Gutschrift\s+Nr\.?\s*\d+| and characteristic line items
+          (article number, quantity, unit price, total).
+
+    \item[\textbf{Belastungsanzeige}~(Charge Notification):] Documents with
+          the header pattern \verb|Belastungsanzeige| and associated
+          debit amounts.
+
+    \item[\textbf{Lagerbelastung}~(Warehouse Charge):] Documents with the
+          header pattern \verb|Lagerbelastung| indicating stock adjustments.
+\end{description}
+
+Beyond document-category detection, regex patterns extract:
+
+\begin{itemize}
+    \item Machine serial numbers~(e.g.\ \verb|UX\d{7,}|, \verb|CYA\d{7,}|)
+    \item Article numbers~(5--8-digit sequences preceded by part-list context)
+    \item RMA numbers~(\verb|RMA[-\s]?\d+|)
+    \item Referenced ticket numbers~(\verb|T\d{9}|)
+    \item Change numbers~(\verb|CN\d{7,}|)
+\end{itemize}
+
+This rule-based layer addresses RQ\,1 directly: structured, pattern-conformant
+information is captured without an LLM.  The LLM is reserved for extracting
+the problem statement, solution, and semantic tags from the narrative text.
+
+%----------------------------------------------------------------------
+\section{Benchmark Dataset and Validation}
+\label{sec:benchmark}
+%
+\subsection{Ticket Selection}
+%
+A stratified sample of 250~tickets was drawn from the full corpus to represent
+three distinct ticket categories:
+
+\begin{itemize}
+    \item \textbf{GS~(Gutschrift/Credit-note tickets):} Billing corrections,
+          credit requests, invoice disputes.
+    \item \textbf{BL~(Belastungsanzeige tickets):} Charge notifications,
+          commission corrections, return-goods authorisations.
+    \item \textbf{LB~(Lagerbelastung tickets):} Warehouse charges,
+          stock adjustments, logistics issues.
+\end{itemize}
+
+Tickets were selected to ensure coverage of different years~(T16--T25),
+a variety of email-thread lengths~(1--20+ messages), and both resolved and
+unresolved cases.
+
+\subsection{Human Annotation}
+%
+Each ticket was annotated by a single domain expert with knowledge of
+Amazone's service operations.  The annotation task comprised:
+
+\begin{enumerate}
+    \item Assigning 1--4 tags from a predefined taxonomy of
+          \textbf{117 approved tags}~(e.g.\ \texttt{warranty\_claim},
+          \texttt{billing\_error}, \texttt{defect\_report}).
+    \item Writing a short free-text Problem and Solution statement.
+\end{enumerate}
+
+The approved tag list was developed iteratively by reviewing a pilot set of
+50~tickets and grouping emerging themes into reusable labels.  Tags are
+intentionally coarse-grained and service-action-oriented to maximise
+reusability across similar tickets.
+
+\subsection{Annotation Quality}
+%
+Inter-annotator agreement was not formally measured for the full benchmark
+because only one annotator was available.  However, a reliability check was
+performed on 25~tickets~(10\,\% of the benchmark), where the annotator
+re-labelled the same tickets two weeks after the initial annotation.
+The self-agreement F1 was \(0.78\), indicating acceptable consistency.
+
+%----------------------------------------------------------------------
+\section{LLM Setup and Prompt Design}
+\label{sec:llm-setup}
+%
+\subsection{Model Serving Infrastructure}
+%
+All open-source models are served via \textbf{Ollama}~(v0.3), a lightweight
+local inference server, on a dedicated GPU server~(\texttt{ve-ds-nns-01}).
+The server is equipped with sufficient VRAM to run 8B--20B parameter models
+at 4-bit quantisation.  The OpenWebUI front-end is used for interactive
+testing and context-window verification.
+
+The proprietary models~(GPT-4o, GPT-3.5-Turbo, GPT-4o-mini) are accessed via
+the OpenAI API.
+
+\subsection{Models Evaluated}
+%
+Table~\ref{tab:models} lists all ten model configurations evaluated in
+this thesis.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Models evaluated in the benchmark study.}
+    \label{tab:models}
+    \begin{tabular}{lllc}
+        \hline
+        \textbf{Prefix} & \textbf{Model} & \textbf{Type} & \textbf{Params} \\
+        \hline
+        \texttt{gptoss}        & gpt-oss               & Open-source (Ollama) & 20B \\
+        \texttt{gemma4}        & gemma4:latest         & Open-source (Ollama) & 9B \\
+        \texttt{gemma4\_26b}   & gemma4:26b            & Open-source (Ollama) & 26B \\
+        \texttt{gemma3\_12b}   & gemma3:12b            & Open-source (Ollama) & 12B \\
+        \texttt{llama}         & llama3.1:8b           & Open-source (Ollama) & 8B \\
+        \texttt{llama8}        & llama3.2:latest       & Open-source (Ollama) & 3B \\
+        \texttt{deepseek}      & deepseek-r1:14b       & Open-source (Ollama) & 14B \\
+        \texttt{qwen3\_14b}    & qwen3:14b             & Open-source (Ollama) & 14B \\
+        \texttt{gpt-4o}        & gpt-4o                & Proprietary (API)    & -- \\
+        \texttt{gpt-3.5-turbo} & gpt-3.5-turbo         & Proprietary (API)    & -- \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Prompt Design}
+\label{sec:prompt-design}
+%
+Each ticket is processed with \textbf{two sequential API calls}:
+
+\begin{enumerate}
+    \item \textbf{Extraction call.}  The model receives the full ticket text
+          and is instructed to return a JSON object with three fields:
+          \texttt{Problem}~(1--2 sentences), \texttt{Solution}~(1--2 sentences),
+          and \texttt{items}~(a JSON array of typed entity references).
+          The prompt embeds explicit reasoning steps~(identify the problem,
+          search for a solution, extract entities) to guide chain-of-thought
+          processing.
+
+    \item \textbf{Tagging call.}  The model receives the same ticket text and
+          is instructed to return a JSON object with a \texttt{tags} array
+          and a \texttt{reasoning} dictionary.  Tags must be drawn exclusively
+          from the approved tag list; the model is penalised in the evaluation
+          for invented tags.
+\end{enumerate}
+
+All prompts are written in English regardless of the ticket language.  The
+instruction to output in English is repeated explicitly to counteract
+the tendency of some models to mirror the input language.
+
+Inference parameters are fixed across all models: temperature~$= 0.2$,
+\texttt{num\_ctx}~$= 131{,}072$~tokens~(128k), \texttt{num\_predict}~$= 4{,}096$
+tokens.  These values ensure that even the longest email threads are fully
+ingested, while the output budget is generous enough to accommodate detailed
+reasoning without being wastefully large.
+
+%----------------------------------------------------------------------
+\section{Experimental Protocol}
+\label{sec:experimental-protocol}
+%
+\subsection{Pipeline Implementation}
+%
+The core pipeline is implemented as a single Python~3 script~(\texttt{extraction.py}).
+For each row in the 250-ticket benchmark CSV, the script:
+
+\begin{enumerate}
+    \item Locates the ticket folder by matching the \texttt{parent\_name} and
+          \texttt{ticket\_number} columns to the folder hierarchy on disk.
+    \item Concatenates all \texttt{.msg.md} files for that ticket into one
+          context string, prefixing each file's content with a
+          \verb|[FILE: <name>]| header to preserve authorship context.
+    \item Sends the extraction call and then the tagging call to the Ollama
+          API, parses both JSON responses, and writes the results back to the
+          output CSV.
+    \item Saves a checkpoint every~10~rows~(\texttt{SAVE\_EVERY~=~10}) to
+          prevent data loss on interruption.
+\end{enumerate}
+
+A one-second sleep is inserted between rows to reduce load on the GPU
+server~\texttt{ve-ds-nns-01:11434}.
+
+\subsection{Evaluation Protocol 1 -- Blind Tag Evaluation}
+\label{subsec:blind-eval}
+%
+In the blind tag evaluation the model receives only the raw ticket text and
+the approved tag taxonomy~(117~tags); it has no access to the human
+annotations.  The predicted tag set is compared to the ground-truth tags
+using token-level precision~$P$, recall~$R$, and F1:
+
+\begin{equation}
+    F_1 = \frac{2 \cdot P \cdot R}{P + R}
+\end{equation}
+
+The evaluation is run separately for each category~(GS, BL, LB); the
+macro-average F1 across the three categories serves as the primary ranking
+metric.  Two additional indicators are reported:
+
+\begin{itemize}
+    \item \textbf{Over-tagging rate}: fraction of predicted tags not in the
+          ground truth~($1-P$).
+    \item \textbf{Under-tagging rate}: fraction of ground-truth tags missed
+          by the model~($1-R$).
+\end{itemize}
+
+\subsection{Evaluation Protocol 2 -- LLM-as-Judge}
+\label{subsec:judge-eval}
+%
+Because F1 penalises semantically equivalent but lexically different
+tags~\cite{zheng2024judging}, a second evaluation track uses GPT-4o as an
+automatic judge.  The judge receives the original ticket, the human
+annotations, and the model-generated output, then rates it on two
+1--5~Likert dimensions:
+
+\begin{description}
+    \item[\textbf{Tag Usefulness~(TU)}:] Do the generated tags meaningfully
+          describe the ticket, even if they differ from the human labels?
+    \item[\textbf{Reasoning Coherence~(RC)}:] Does the reasoning field
+          demonstrate a logical, accurate understanding of the ticket?
+\end{description}
+
+A composite judge score is defined as $J = (\overline{TU} + \overline{RC})/2$.
+Models are ranked separately by F1 and by $J$ to assess whether the two
+protocols converge on the same conclusions.

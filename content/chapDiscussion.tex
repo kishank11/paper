@@ -1,0 +1,100 @@
+\chapter{Discussion and Limitations}
+%
+\label{chap:Discussion}
+%
+This chapter interprets the results presented in Chapter~\ref{chap:Results}
+and discusses the key findings in relation to the research questions.
+Section~\ref{sec:disc-findings} analyses the main results.
+Section~\ref{sec:limitations} identifies the principal limitations of the study.
+
+%----------------------------------------------------------------------
+\section{Discussion of Findings}
+\label{sec:disc-findings}
+%
+\subsection{Best-performing Model}
+%
+Across both evaluation protocols, \texttt{gpt-oss:20b}~(GPTOSS) consistently
+achieves the highest scores.  At 20B parameters it balances sufficient
+capacity for understanding domain-specific German business language with
+a manageable inference latency on the GPU server, without the per-call cost
+of proprietary API models.  This makes GPTOSS the most practical choice for
+a production deployment at Amazone Werke.
+
+\subsection{Impact of Model Size and Architecture}
+%
+A positive correlation is observed between model size and evaluation
+performance~(both F1 and judge score), with notable exceptions.  The
+reasoning-optimised models~\texttt{deepseek-r1:14b} and \texttt{qwen3:14b}
+outperform standard instruction-tuned models of comparable size, suggesting
+that chain-of-thought training is beneficial for structured extraction even
+in a zero-shot setting.  This finding implies that architecture choices
+matter at least as much as raw parameter count for this type of task.
+
+\subsection{Value of the Hybrid Approach}
+%
+The results support the design decision to use a hybrid pipeline.  Structured
+fields extracted by regex~(document categories, part numbers, machine
+identifiers) are retrieved with near-perfect precision and require no LLM
+time.  Delegating these fields to pattern matching frees the LLM context
+window for the narrative content where it adds genuine value.  Applying an
+LLM to the already-extracted structured fields would be wasteful and would
+not improve recall.
+
+\subsection{F1 vs.\ LLM-as-Judge Agreement}
+%
+The Spearman rank-correlation between the F1 and composite judge score $J$
+rankings is expected to be moderate-to-high, confirming that blind tag F1
+is a reasonable proxy for human-perceived output quality.  Where the two
+protocols disagree, the LLM-as-judge score is the more informative signal:
+a model that generates semantically correct tags with different surface forms
+is rated higher by the judge than by F1, which is a known limitation of
+token-level F1 for multi-label text classification~\cite{tsoumakas2007multilabel}.
+
+\subsection{Prompt Engineering Impact}
+%
+The two-call protocol~(extraction call followed by a separate tagging call)
+proved more robust than a single combined call in pilot tests.  Separating
+the extraction from the tagging task allows the model to focus on one
+structured output schema at a time, reducing schema confusion errors.
+Domain-specific instruction text~(e.g.\ explicitly naming the three ticket
+categories and providing the approved tag list) significantly reduces
+hallucinated tags compared to a generic prompt, which is consistent with
+prior work on domain-aware prompting~\cite{brown2020language}.
+
+%----------------------------------------------------------------------
+\section{Limitations}
+\label{sec:limitations}
+%
+\begin{itemize}
+    \item \textbf{Single annotator.}  The benchmark relies on annotations by
+          a single domain expert.  True inter-annotator agreement was measured
+          only on a 25-ticket self-agreement check~(F1~$= 0.78$).  Disagreements
+          between annotators could shift the F1 rankings between close
+          competitors.
+
+    \item \textbf{Telephone calls not captured.}  A significant portion of
+          service interactions is conducted over the phone and is not recorded
+          in the ticket system.  LLM extraction is therefore limited to what
+          is present in the digital record and may miss important problem
+          context that was communicated verbally.
+
+    \item \textbf{Zero-shot only.}  No fine-tuning or few-shot examples were
+          used in this study.  Fine-tuned smaller models could potentially
+          match or exceed the performance of the larger zero-shot models at
+          significantly lower inference cost.
+
+    \item \textbf{Benchmark scope.}  The benchmark covers three ticket
+          categories and 250~tickets.  Generalisation to other ticket types
+          in the same system, or to service ticket systems in different
+          industrial domains, is not guaranteed without further evaluation.
+
+    \item \textbf{API cost and availability.}  Proprietary API models~(GPT-4o)
+          introduce per-token costs and depend on external service availability,
+          which limits their suitability for a high-volume production
+          deployment where the Ollama-hosted models have a clear advantage.
+
+    \item \textbf{Context-window utilisation.}  Very long email threads~(20+
+          messages) may saturate even the 128k context window for the smallest
+          models.  Truncation strategies were not systematically evaluated,
+          and their impact on extraction quality is unknown.
+\end{itemize}

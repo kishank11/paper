@@ -24,11 +24,19 @@ range of analytical and operational tasks.  One particularly active area is
 reason for a system failure or incident from heterogeneous textual evidence~--
 a task structurally similar to diagnosing the root problem of a service
 ticket.  \citeauthor{chen2024automatic}~\cite{chen2024automatic} applied LLMs
-to cloud incident reports, demonstrating that a fine-tuned model can identify
-the root cause of an outage directly from incident descriptions.  Building on
-this, \citeauthor{roy2024exploring}~\cite{roy2024exploring} explored
-\emph{agentic} LLM systems that actively gather diagnostic information through
-tool calls rather than reasoning over a static context, and
+to cloud incident reports with their \textsc{RCACopilot} system, which uses
+predefined handlers to automatically collect multi-modal diagnostic data and
+an LLM to predict a root cause category, avoiding the cost of repeated
+fine-tuning.  Building on this, \citeauthor{roy2024exploring}~%
+\cite{roy2024exploring} explored \emph{agentic} LLM systems on an
+out-of-distribution dataset of production incidents collected at Microsoft.
+Their central finding is instructive for this thesis: a ReAct agent equipped
+with retrieval tools performed competitively with strong retrieval and
+reasoning baselines \emph{but with substantially higher factual accuracy}, and
+they observed that introducing explicit chain-of-thought reasoning yielded the
+lowest hallucination rates.  Notably, they also report that adding more context
+(historical incident discussions) did \emph{not} yield significant performance
+improvements~--~a cautionary result for context-stuffing approaches.
 \citeauthor{pei2025flowofaction}~\cite{pei2025flowofaction} extended the agent
 paradigm with standard-operating-procedure guidance to constrain the diagnostic
 search in a multi-agent setting.
@@ -39,6 +47,9 @@ operational text.  The service tickets analysed in this thesis differ in domain
 (agricultural machinery rather than cloud infrastructure) and in language
 (predominantly German rather than English), but the core task of distilling a
 coherent problem and solution from a messy thread is closely analogous to RCA.
+The RCA findings on the value of explicit reasoning and the diminishing returns
+of additional context directly informed the prompt design choices made in
+Chapter~\ref{chap:Methodology}.
 
 %----------------------------------------------------------------------
 \section{Structuring Unstructured Data with LLMs}
@@ -64,12 +75,20 @@ comprehensive benchmark for unstructured data analysis with LLMs, and
 an evaluation methodology specifically for complex structured extraction, both
 finding substantial performance gaps as document complexity grows.  Work on
 tabular comprehension is also directly relevant:
-\citeauthor{sui2024table}~\cite{sui2024table} show that LLMs only partially
-understand structured table data, while
-\citeauthor{he2024thinking}~\cite{he2024thinking} demonstrate that supplying
-explicit structure (in the form of knowledge graphs) improves reasoning.
-Together, these findings justify both the careful benchmark design and the
-preprocessing-heavy pipeline used in this thesis.
+\citeauthor{sui2024table}~\cite{sui2024table} designed the \textsc{SUC}
+benchmark of seven structural-understanding tasks~(e.g.\ cell lookup, row
+retrieval, size detection) and evaluated GPT-3.5 and GPT-4 on it.  Their
+results show that LLMs only partially understand structured table data and that
+performance depends heavily on input design: serialising tables as HTML
+outperformed natural-language-with-separators by roughly~6.8\%, and their
+proposed \emph{self-augmented prompting}~(asking the model to first describe the
+table's structure, then answer) raised overall accuracy to about~65\% across
+the seven tasks.  \citeauthor{he2024thinking}~\cite{he2024thinking} similarly
+demonstrate that supplying explicit structure~(in the form of knowledge graphs)
+improves reasoning.  These findings carry a clear lesson for this thesis: the
+\emph{format} in which ticket content is presented to the model matters as much
+as the model itself, which is why the preprocessing pipeline converts all
+sources into a consistent Markdown representation~(Chapter~\ref{chap:Methodology}).
 
 %----------------------------------------------------------------------
 \section{Large Language Models for Information Extraction}

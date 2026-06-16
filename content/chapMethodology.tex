@@ -139,38 +139,117 @@ input format for the LLM.  The conversion strategy is:
 
 \subsubsection{PDF Extraction Tool Selection}
 %
-Before settling on PyMuPDF4LLM, five alternative libraries were evaluated
-on a test set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung,
-5~Belastungsanzeige).  A tool scores one point per PDF where all expected
-fields are correctly extracted.  Table~\ref{tab:tool-comparison} summarises
-the results.
+The initial extraction attempts used \textbf{MarkItDown}~\cite{markitdown2024},
+a general-purpose file-to-Markdown converter.  However, MarkItDown failed to
+extract the ticket content in a correctly structured manner.  As shown in
+Figure~\ref{fig:markitdown-drawback}, the converter linearises the document
+into a flat sequence of fragments: column headers~(\texttt{POS},
+\texttt{NO.\,D'ARTICLE}, \texttt{QUANT.}) are separated from their
+corresponding values, and the tabular relationship between an article number,
+its description, and its price is lost entirely.  Compared to the original PDF
+layout~(shown on the right of the same figure), the extracted text is no longer
+machine-interpretable as a structured invoice, which makes downstream entity
+extraction unreliable.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/markitdown_drawback_output.png}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{figures/markitdown_drawback_original.png}
+    \caption{Drawback of MarkItDown.  Left: the unstructured, linearised
+             output, where table columns are detached from their values.
+             Right: the original PDF layout that should have been preserved.}
+    \label{fig:markitdown-drawback}
+\end{figure}
+
+Motivated by this failure, four alternative libraries were evaluated on a test
+set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung, 5~Belastungsanzeige).  A tool
+scores one point per PDF where \emph{all} expected fields are correctly
+extracted.  Table~\ref{tab:tool-comparison} summarises the results.
 
 \begin{table}[H]
     \centering
-    \caption{PDF extraction tool comparison (score: number of PDFs with
-             all fields correctly extracted out of~15).}
+    \caption{PDF extraction tool comparison (score: number of PDFs out of~15
+             from which all expected fields were correctly extracted).}
     \label{tab:tool-comparison}
     \begin{tabular}{llcl}
         \hline
         \textbf{Library} & \textbf{License} & \textbf{Score} & \textbf{Cost} \\
         \hline
-        PyMuPDF4LLM & AGPL      & \textbf{15/15} & Free (if not hosted) \\
-        Docling      & MIT       & 11/15          & Free \\
-        Spire        & Commercial & 11/15         & Paid \\
-        Tabula-py    & MIT       & 6/15           & Free \\
-        pypdf        & BSD 3-Cl. & --             & Free \\
+        PyMuPDF4LLM & AGPL       & \textbf{15/15} & Free (if not hosted) \\
+        Docling      & MIT        & 11/15          & Free \\
+        Spire        & Commercial & 11/15          & Paid \\
+        Tabula-py    & MIT        & 6/15           & Free \\
         \hline
     \end{tabular}
 \end{table}
 
-PyMuPDF4LLM was the only tool to achieve a perfect score across all three
-document categories.  Additionally, all tools performed comparably in terms
-of speed, with the exception of Docling, which was approximately 1.5$\times$
-slower.
+Each tool exhibited a characteristic failure mode:
 
-Files that cannot be converted~(corrupted, password-protected, image-only PDFs)
-are skipped and logged; the remaining text files are combined into a single
-\texttt{.msg.md} file per ticket.
+\begin{itemize}
+    \item \textbf{Tabula (6/15).}  Tabula is specialised for table extraction
+          and performed well \emph{only} on the tabular regions of a document.
+          As shown in Figure~\ref{fig:tool-tabula}, it correctly reconstructs
+          the key--value table~(Lieferschein-Nr., LS-Datum, Auftrag~Nr.) but
+          populates many cells with \texttt{nan} and ignores all
+          non-tabular text, so most documents were only partially captured.
+
+    \item \textbf{Docling (11/15).}  Docling produced output that was often
+          similar to the unstructured MarkItDown result.  As shown in
+          Figure~\ref{fig:tool-docling}, when configured for table extraction
+          it linearised the fields into separate lines and, on the 5~test PDFs
+          checked specifically for table fidelity, it missed the tables in CSV
+          form.
+
+    \item \textbf{Spire (11/15).}  Spire matched Docling's score but, like
+          MarkItDown, frequently returned a flat, unstructured stream of
+          values~(Figure~\ref{fig:tool-spire}).  It is also a commercial,
+          paid library.
+
+    \item \textbf{PyMuPDF4LLM (15/15).}  PyMuPDF4LLM~\cite{pymupdf4llm} was the
+          only tool to achieve a perfect score across all three document
+          categories.  As shown in Figure~\ref{fig:tool-pymupdf4llm}, it
+          preserves both the header block and the tabular structure as proper
+          Markdown tables, keeping article numbers, descriptions, and prices in
+          their correct relationship.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/tool_tabula.png}
+    \caption{Tabula output (6/15).  Tables are reconstructed but many cells are
+             \texttt{nan} and non-tabular text is dropped.}
+    \label{fig:tool-tabula}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/tool_docling.png}
+    \caption{Docling output (11/15).  Fields are linearised and table structure
+             is lost when exporting to CSV.}
+    \label{fig:tool-docling}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/tool_spire.png}
+    \caption{Spire output (11/15).  A flat, unstructured stream of values
+             similar to MarkItDown.}
+    \label{fig:tool-spire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/tool_pymupdf4llm.png}
+    \caption{PyMuPDF4LLM output (15/15).  Header block and tabular structure are
+             preserved as proper Markdown tables.}
+    \label{fig:tool-pymupdf4llm}
+\end{figure}
+
+Based on this comparison, PyMuPDF4LLM was selected as the PDF extraction tool
+for the entire pipeline.  Files that cannot be converted~(corrupted,
+password-protected, image-only PDFs) are skipped and logged; the remaining text
+files are combined into a single \texttt{.msg.md} file per ticket.
 
 \subsection{Token Budget Management and Cleaning}
 \label{subsec:cleaning}
@@ -348,7 +427,7 @@ Amazone's service operations.  The annotation task comprised:
 
 \begin{enumerate}
     \item Assigning 1--4 tags from a predefined taxonomy of
-          \textbf{117 approved tags}~(e.g.\ \texttt{warranty\_claim},
+          \textbf{126 approved tags}~(e.g.\ \texttt{warranty\_claim},
           \texttt{billing\_error}, \texttt{defect\_report}).
     \item Writing a short free-text Problem and Solution statement.
 \end{enumerate}
@@ -474,7 +553,7 @@ server~\texttt{ve-ds-nns-01:11434}.
 \label{subsec:blind-eval}
 %
 In the blind tag evaluation the model receives only the raw ticket text and
-the approved tag taxonomy~(117~tags); it has no access to the human
+the approved tag taxonomy~(126~tags); it has no access to the human
 annotations.  The predicted tag set is compared to the ground-truth tags
 using token-level precision~$P$, recall~$R$, and F1:
 

@@ -2,9 +2,74 @@
 %
 \label{chap:RelatedWork}
 %
-This chapter surveys the research areas most directly relevant to this thesis:
-(1)~the use of LLMs for information extraction, (2)~automated service ticket
-analysis, (3)~multi-label text classification, and (4)~multilingual NLP.
+This chapter surveys the research areas most directly relevant to this thesis.
+It begins with a broad view of how large language models are applied to
+real-world analysis tasks~(Section~\ref{sec:rw-llm-apps}), narrows to their
+use for converting unstructured into structured data~(Section~\ref{sec:rw-struct}),
+and then covers the four areas that define the specific contribution of this
+work: (1)~the use of LLMs for information extraction~(Section~\ref{sec:rw-llm-ie}),
+(2)~automated service ticket analysis~(Section~\ref{sec:rw-tickets}),
+(3)~multi-label text classification~(Section~\ref{sec:rw-multilabel}), and
+(4)~multilingual NLP~(Section~\ref{sec:rw-multilingual}).  It closes with the
+LLM-as-judge evaluation paradigm~(Section~\ref{sec:rw-judge}) and a summary of
+the research gap~(Section~\ref{sec:rw-gap}).
+
+%----------------------------------------------------------------------
+\section{Applications of Large Language Models for Analysis Tasks}
+\label{sec:rw-llm-apps}
+%
+Large language models have rapidly moved beyond text generation into a wide
+range of analytical and operational tasks.  One particularly active area is
+\emph{root cause analysis}~(RCA), where the goal is to diagnose the underlying
+reason for a system failure or incident from heterogeneous textual evidence~--
+a task structurally similar to diagnosing the root problem of a service
+ticket.  \citeauthor{chen2024automatic}~\cite{chen2024automatic} applied LLMs
+to cloud incident reports, demonstrating that a fine-tuned model can identify
+the root cause of an outage directly from incident descriptions.  Building on
+this, \citeauthor{roy2024exploring}~\cite{roy2024exploring} explored
+\emph{agentic} LLM systems that actively gather diagnostic information through
+tool calls rather than reasoning over a static context, and
+\citeauthor{pei2025flowofaction}~\cite{pei2025flowofaction} extended the agent
+paradigm with standard-operating-procedure guidance to constrain the diagnostic
+search in a multi-agent setting.
+
+These works are relevant to this thesis because they share the same fundamental
+challenge: extracting an actionable diagnosis from noisy, semi-structured
+operational text.  The service tickets analysed in this thesis differ in domain
+(agricultural machinery rather than cloud infrastructure) and in language
+(predominantly German rather than English), but the core task of distilling a
+coherent problem and solution from a messy thread is closely analogous to RCA.
+
+%----------------------------------------------------------------------
+\section{Structuring Unstructured Data with LLMs}
+\label{sec:rw-struct}
+%
+A second broad line of research focuses on converting unstructured or
+semi-structured data into structured representations.  Recent work on document
+understanding shows a consistent hybrid pattern: optical character recognition,
+parsing, or rule-based steps handle the first pass, and LLMs are then used for
+semantic extraction, normalisation, or schema-aware cleanup.
+\citeauthor{stuhlmiller2025scalable}~\cite{stuhlmiller2025scalable} report that
+an LLM pipeline can process semi-structured and unstructured electronic health
+records to improve classification, extraction, and standardisation.  This
+mirrors the hybrid design adopted in this thesis, where reliable regular
+expressions capture structured fields and the LLM reasons over the unstructured
+narrative.
+
+Benchmark-oriented studies, however, caution that extraction remains fragile
+when documents become messy or schemas become broad.
+\citeauthor{deng2025unstructured}~\cite{deng2025unstructured} present a
+comprehensive benchmark for unstructured data analysis with LLMs, and
+\citeauthor{ferguson2026extractbench}~\cite{ferguson2026extractbench} introduce
+an evaluation methodology specifically for complex structured extraction, both
+finding substantial performance gaps as document complexity grows.  Work on
+tabular comprehension is also directly relevant:
+\citeauthor{sui2024table}~\cite{sui2024table} show that LLMs only partially
+understand structured table data, while
+\citeauthor{he2024thinking}~\cite{he2024thinking} demonstrate that supplying
+explicit structure (in the form of knowledge graphs) improves reasoning.
+Together, these findings justify both the careful benchmark design and the
+preprocessing-heavy pipeline used in this thesis.
 
 %----------------------------------------------------------------------
 \section{Large Language Models for Information Extraction}
@@ -45,15 +110,34 @@ ticket routing and priority prediction.
 
 However, the bulk of this literature targets English-language IT helpdesk data
 from publicly available datasets~(e.g.~Incident Ticket from ServiceNow).
-Industrial service tickets for physical machinery—multi-lingual, attachment-heavy,
-and spanning years of email threads—are comparatively understudied.
-The closest related work by \citeauthor{hassan2023llm}~\cite{hassan2023llm}
+A dedicated line of work focuses narrowly on service tickets and email triage,
+typically casting the task as classification, prioritisation, or escalation.
+\citeauthor{tolciu2021analysis}~\cite{tolciu2021analysis} analyse patterns and
+similarities in service tickets using classical NLP techniques such as
+bag-of-words and TF-IDF.  \citeauthor{liu2023ticketbert}~\cite{liu2023ticketbert}
+introduce \textsc{Ticket-BERT}, fine-tuning a BERT-style model to label incident
+management tickets, and \citeauthor{boonklay2025comparative}~%
+\cite{boonklay2025comparative} provide a comparative study of machine learning
+and deep learning algorithms for customer support ticket classification across
+public and enterprise datasets.  These papers show that ticket automation is
+feasible and often accurate, but they mostly optimise routing or label
+assignment rather than extracting and synthesising actionable insights from the
+combination of emails, PDFs, and attachments.
+
+Industrial service tickets for physical machinery~--~multilingual,
+attachment-heavy, and spanning years of email threads~--~are comparatively
+understudied.  The closest related work by
+\citeauthor{hassan2023llm}~\cite{hassan2023llm}
 applies GPT-4 to manufacturing quality reports but does not address the
 extraction of structured entities or multi-label categorisation.
 
-This thesis contributes to filling this gap by constructing and releasing a
-benchmark for agricultural machinery service tickets and evaluating multiple LLMs
-on it.
+This yields a clear research gap: there is substantial prior work on either
+rule-based extraction from structured document fields or ML/LLM classification
+of support tickets, but less work that explicitly combines reliable rule-based
+capture for the structured parts with LLM reasoning over the unstructured
+narrative to produce coherent operational insights.  This thesis contributes to
+filling this gap by constructing a benchmark for agricultural machinery service
+tickets and evaluating multiple LLMs on it.
 
 %----------------------------------------------------------------------
 \section{Multi-label Text Classification}

@@ -54,21 +54,21 @@ corpus has grown significantly since~2020, with PDF files dominating
 Gutschrift tickets (99\%+) and MSG files becoming increasingly prominent in
 Belastungsanzeige and Lagerbelastung tickets from T24~onwards.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/gutschrift_file_format_trend.png}
     \caption{Gutschrift: file format composition trend (T16--T25).}
     \label{fig:gs-trend}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_file_format_trend.png}
     \caption{Belastungsanzeige: file format composition trend (T16--T25).}
     \label{fig:bl-trend}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_file_format_trend.png}
     \caption{Lagerbelastung: file format composition trend (T16--T25).}
@@ -78,21 +78,21 @@ Belastungsanzeige and Lagerbelastung tickets from T24~onwards.
 Figures~\ref{fig:gs-records}--\ref{fig:lb-records} show the number of
 records per year for each category.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/gutschrift_records_per_year.png}
     \caption{Gutschrift records per year (T16--T25).}
     \label{fig:gs-records}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_records_per_year.png}
     \caption{Belastungsanzeige records per year (T16--T25).}
     \label{fig:bl-records}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_records_per_year.png}
     \caption{Lagerbelastung records per year (T16--T25).}
@@ -104,14 +104,14 @@ credit notes per year, peaking at over 9.1~million~EUR in T23~(2023).
 Figure~\ref{fig:bl-cost} shows the total cost per year for Belastungsanzeige
 charge notifications.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/gutschrift_money_spent.png}
     \caption{Total Gutschrift credit note value per year in EUR (T16--T25).}
     \label{fig:gs-money}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_cost_per_year.png}
     \caption{Total Belastungsanzeige cost per year in 1000~EUR (T16--T25).}
@@ -145,7 +145,7 @@ on a test set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung,
 fields are correctly extracted.  Table~\ref{tab:tool-comparison} summarises
 the results.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{PDF extraction tool comparison (score: number of PDFs with
              all fields correctly extracted out of~15).}
@@ -180,7 +180,7 @@ entirely.  However, to improve reasoning performance and reduce noise, a
 cleaning pass is applied.  The following boilerplate patterns were identified
 and removed automatically:
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Most frequent boilerplate patterns removed during preprocessing.}
     \label{tab:boilerplate}
@@ -204,7 +204,7 @@ and removed automatically:
 
 The combined preprocessing results are:
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Preprocessing compression results.}
     \label{tab:compression}
@@ -289,7 +289,7 @@ The language distribution of the benchmark tickets is dominated by German
 patterns between Amazone's German headquarters and its international
 dealer network.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Language distribution in the 250-ticket benchmark.}
     \label{tab:language-dist}
@@ -311,7 +311,7 @@ types in the benchmark.  MSG email files dominate overwhelmingly (622~out of
 650~files, 95.7\%), confirming that the primary communication channel is
 email.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/benchmark_file_type_distribution.png}
     \caption{Distribution of source file types in the benchmark Markdown files.}
@@ -322,7 +322,7 @@ Figure~\ref{fig:ticket-classification} shows that 237~tickets~(97.1\%)
 contain at least one \texttt{.msg.md} file, while only 7~tickets~(2.9\%)
 consist entirely of non-email files.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/ticket_classification.png}
     \caption{Ticket classification: tickets with .msg.md files vs other files only.}
@@ -334,7 +334,7 @@ ticket.  The majority of tickets (60.7\%) contain only a single file, while
 4.9\% contain eleven or more files, representing complex multi-message
 threads with attachments.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/file_distribution_per_ticket.png}
     \caption{Distribution of files per ticket in the benchmark dataset.}
@@ -387,7 +387,7 @@ Table~\ref{tab:models} lists all fifteen model configurations evaluated in
 this thesis, spanning both open-source models served via Ollama and
 proprietary models accessed via the OpenAI API.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Models evaluated in the benchmark study.}
     \label{tab:models}

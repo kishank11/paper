@@ -25,7 +25,7 @@ and Accuracy scores for all fifteen model configurations evaluated against
 the human-annotated ground-truth tags.  All scores are macro-averaged over
 the 250~benchmark tickets.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Metric comparison: all models vs human tags baseline (Tags).
              Best result in each column is \textbf{bold}.}
@@ -56,7 +56,7 @@ the 250~benchmark tickets.
 Figure~\ref{fig:f1-table-screenshot} shows the complete metric comparison as
 produced by the evaluation pipeline.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/f1_human_tag_results.png}
     \caption{Metric comparison of all models vs human tags baseline.
@@ -80,7 +80,7 @@ Table~\ref{tab:regex-results} shows the performance of the regular expression
 patterns described in Section~\ref{subsec:regex} for structured field
 extraction.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Performance of regex patterns for structured extraction.}
     \label{tab:regex-results}
@@ -109,7 +109,7 @@ produced across all processed tickets; unique tags indicates how many distinct
 tag strings the model generated; and average tags per ticket is the mean tag
 count per ticket.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{LLM tagging profiles: volume and diversity of generated tags.}
     \label{tab:tagging-profiles}
@@ -130,7 +130,7 @@ count per ticket.
     \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/llm_tagging_profiles.png}
     \caption{LLM tagging profiles as produced by the evaluation pipeline.}
@@ -156,7 +156,7 @@ well each model's extracted items (machine numbers, article numbers, etc.)
 match the ticket content.  The metric is \textit{Average Target Hit Rate}:
 the fraction of ground-truth items the model correctly identifies.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Item extraction: average target hit rate (GPT-5.5 as baseline judge).}
     \label{tab:item-extraction}
@@ -175,7 +175,7 @@ the fraction of ground-truth items the model correctly identifies.
     \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/item_extraction_baseline.png}
     \caption{Item extraction ranking with GPT-5.5 as judge.  The
@@ -197,7 +197,7 @@ In a second judge evaluation, GPT-5.5 was given 28~base tags and asked to
 (b)~assess the usefulness of the model's tags as a percentage, and
 (c)~compute a composite score normalised to 0--100.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{GPT-5.5 judge results: P/S quality, tag usefulness, and composite
              score. 665~extended tags were evaluated.}
@@ -236,7 +236,7 @@ ensemble average is computed across all four embeddings.
 Table~\ref{tab:semantic-ps} shows the semantic similarity scores for the
 Problem/Solution extraction task.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Semantic similarity of Problem/Solution output to ticket content
              (ensemble average of four embedding models).}
@@ -263,7 +263,7 @@ Problem/Solution extraction task.
 Table~\ref{tab:semantic-bt} shows the semantic similarity scores for the
 blind tag generation task.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Semantic similarity of blind tag output to ticket content.}
     \label{tab:semantic-bt}
@@ -284,7 +284,7 @@ blind tag generation task.
     \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/semantic_similarity.png}
     \caption{Semantic similarity scores for Problem/Solution and Blind Tag
@@ -297,7 +297,7 @@ blind tag generation task.
 Table~\ref{tab:combined-avg} aggregates the P/S and Blind Tag ensemble
 averages into a single combined score.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \caption{Combined semantic similarity average (Problem/Solution + Blind Tag).}
     \label{tab:combined-avg}
@@ -316,7 +316,7 @@ averages into a single combined score.
     \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/combined_average.png}
     \caption{Combined average semantic similarity for P/S and Blind Tags.}

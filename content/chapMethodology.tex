@@ -440,16 +440,26 @@ Each ticket was annotated by a single domain expert with knowledge of
 Amazone's service operations.  The annotation task comprised:
 
 \begin{enumerate}
-    \item Assigning 1 to 4 tags from a predefined taxonomy of
-          \textbf{126 approved tags}~(e.g.\ \texttt{warranty\_claim},
+    \item Assigning 1 to 4 tags from a curated set of
+          \textbf{28 human-defined tags}~(e.g.\ \texttt{warranty\_claim},
           \texttt{billing\_error}, \texttt{defect\_report}).
     \item Writing a short free-text Problem and Solution statement.
 \end{enumerate}
 
-The approved tag list was developed iteratively by reviewing a pilot set of
-50~tickets and grouping emerging themes into reusable labels.  Tags are
-intentionally coarse-grained and service-action-oriented to maximise
-reusability across similar tickets.
+These 28~tags form the human-annotated ground truth used in the F1 evaluation.
+They were developed manually by working through the benchmark tickets and
+grouping the most common and clearly recurring service themes into reusable
+labels.  The tags are intentionally coarse-grained and service-action-oriented
+to maximise reusability across similar tickets.
+
+This human-defined set was later extended into a larger taxonomy of
+126~tags for the blind tag evaluation.  The extension was driven by the
+language models themselves: prompting the models to generate tags freely across
+the corpus produced a pool of roughly 1{,}789~candidate tags, which was then
+reduced to 126~clear, non-overlapping labels through a dedicated
+quality-control pass.  The full development process is described in
+Section~\ref{sec:disc-tags}, and the complete 126-tag list is provided in
+Appendix~\ref{chap:TagTaxonomy}.
 
 \subsection{Annotation Quality}
 %
@@ -567,10 +577,11 @@ server~\texttt{ve-ds-nns-01:11434}.
 \label{subsec:blind-eval}
 %
 In the blind tag evaluation the model receives only the raw ticket text and
-the approved tag taxonomy~(126~tags); it has no access to the human
-annotations.  The predicted tag set is compared to the ground-truth tags
-using token-level precision~$P$, recall~$R$, and the F1 score, which is the
-harmonic mean of precision and recall:
+the extended tag taxonomy~(126~tags); it has no access to the human
+annotations.  The tags the model predicts are then compared against the
+28~human-defined ground-truth tags using token-level precision~$P$,
+recall~$R$, and the F1 score, which is the harmonic mean of precision and
+recall:
 
 \begin{equation}
     F_1 = \frac{2 \cdot P \cdot R}{P + R}

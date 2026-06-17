@@ -16,26 +16,29 @@ The set of tags used in this thesis was not fixed in advance.  It emerged from
 a multi-iteration process that deserves discussion, because the quality of the
 taxonomy directly shapes the quality of every result that depends on it.
 
-The process began manually.  Working through the benchmark tickets by hand, an
-initial set of roughly 28~tags was identified that captured the most common and
-clearly recurring themes in the service data.  This small, hand-curated set
-served as a reliable starting point, but it was far from exhaustive.
+The process began manually.  Working through the benchmark tickets by hand, a
+set of 28~tags was identified that captured the most common and clearly
+recurring themes in the service data.  These 28~tags are the human-annotated
+ground truth: they are the labels the human expert assigned to each benchmark
+ticket, and they are the reference against which the F1 scores in
+Chapter~\ref{chap:Results} are computed.  This hand-curated set is reliable and
+precise, but by design it is small and not exhaustive.
 
-To broaden the coverage, the language models were then asked to generate tags
-freely across the corpus.  This produced a very large pool of around
-1{,}789~candidate tags.  While this confirmed that the models were capable of
-proposing fine-grained labels, the raw output was unsuitable for direct use:
-many of the generated tags were vague, overlapping in meaning, or near
-duplicates of one another, and some were too specific to apply to more than a
-single ticket.
+To broaden the coverage for the blind tag evaluation, the language models were
+then asked to generate tags freely across the corpus.  This produced a very
+large pool of around 1{,}789~candidate tags.  While this confirmed that the
+models were capable of proposing fine-grained labels, the raw output was
+unsuitable for direct use: many of the generated tags were vague, overlapping
+in meaning, or near duplicates of one another, and some were too specific to
+apply to more than a single ticket.
 
 The decisive step was therefore a deliberate quality-control pass over this
 pool.  Rather than maximising the number of tags, the goal was to make the
 taxonomy clear and consistent.  Tags that were vague were either sharpened or
 removed, near-duplicates were merged into a single canonical label, and
 ambiguous labels were rewritten so that each tag had a distinct and
-well-defined meaning.  This reduced the unwieldy candidate pool to the curated
-set documented in Appendix~\ref{chap:TagTaxonomy}.
+well-defined meaning.  This reduced the unwieldy candidate pool of 1{,}789~tags
+to the curated set of 126~tags documented in Appendix~\ref{chap:TagTaxonomy}.
 
 Finally, to ensure that the resulting taxonomy was not merely internally
 consistent but also correct from a domain perspective, the refined tag set was

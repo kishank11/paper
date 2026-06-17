@@ -19,7 +19,8 @@ rule-based pattern-extraction layer was added to capture structured
 fields (document categories, article numbers, machine serial numbers, and RMA
 codes) without invoking an LLM.  The second stage was benchmark construction:
 250~tickets were selected, annotated by a human expert with ground-truth tags
-from a 126-tag taxonomy, and split into three category subsets.  The third
+from a curated set of 28~human-defined tags, and split into three category
+subsets.  The third
 stage was the LLM evaluation itself, in which fifteen model configurations were
 assessed using a two-call extraction and tagging protocol; the results were
 measured both with token-level F1 against the human annotations and through an

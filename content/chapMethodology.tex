@@ -44,77 +44,91 @@ The corpus consists of service tickets exported from the Amazone~Werke
 service system.  Each ticket is stored as a folder containing one or more
 files.  The folder name encodes the ticket identifier~(e.g.~\texttt{T250001234})
 and is grouped under a parent category prefix~(\texttt{T16}--\texttt{T25},
-corresponding to years 2016--2025).
+corresponding to years 2016 to 2025).
 
 \subsubsection{Corpus Volume and Growth}
 %
 Figures~\ref{fig:gs-trend}--\ref{fig:lb-trend} show the file format
-composition trend for each ticket category over the period 2016--2025.  The
+composition trend for each ticket category over the period 2016 to 2025.  The
 corpus has grown significantly since~2020, with PDF files dominating
 Gutschrift tickets (99\%+) and MSG files becoming increasingly prominent in
 Belastungsanzeige and Lagerbelastung tickets from T24~onwards.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/gutschrift_file_format_trend.png}
-    \caption{Gutschrift: file format composition trend (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/gutschrift_file_format_trend.png}
+    \caption{Gutschrift: file format composition trend (2016 to 2025).}
     \label{fig:gs-trend}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_file_format_trend.png}
-    \caption{Belastungsanzeige: file format composition trend (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/belastungsanzeige_file_format_trend.png}
+    \caption{Belastungsanzeige: file format composition trend (2016 to 2025).}
     \label{fig:bl-trend}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_file_format_trend.png}
-    \caption{Lagerbelastung: file format composition trend (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/lagerbelastung_file_format_trend.png}
+    \caption{Lagerbelastung: file format composition trend (2016 to 2025).}
     \label{fig:lb-trend}
 \end{figure}
 
 Figures~\ref{fig:gs-records}--\ref{fig:lb-records} show the number of
-records per year for each category.
+records per year for each category.  An important caveat applies to all of
+these year-by-year figures: the data only becomes reliable from~2022 onwards.
+Before that year, the company used a different process for recording and
+archiving service tickets, so the lower record counts in the earlier years
+reflect incomplete digital capture rather than a genuine absence of service
+activity.  The sharp increase visible around 2021 and 2022 is therefore largely
+an artefact of this process change, and any trend analysis should focus on the
+period from 2022 onwards.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/gutschrift_records_per_year.png}
-    \caption{Gutschrift records per year (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/gutschrift_records_per_year.png}
+    \caption{Gutschrift records per year (2016 to 2025). Data from 2022 onwards
+             is reliable; earlier years are affected by a change in the
+             company's recording process.}
     \label{fig:gs-records}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_records_per_year.png}
-    \caption{Belastungsanzeige records per year (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/belastungsanzeige_records_per_year.png}
+    \caption{Belastungsanzeige records per year (2016 to 2025). Data from 2022
+             onwards is reliable; earlier years are affected by a change in the
+             company's recording process.}
     \label{fig:bl-records}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/lagerbelastung_records_per_year.png}
-    \caption{Lagerbelastung records per year (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/lagerbelastung_records_per_year.png}
+    \caption{Lagerbelastung records per year (2016 to 2025). Data from 2022
+             onwards is reliable; earlier years are affected by a change in the
+             company's recording process.}
     \label{fig:lb-records}
 \end{figure}
 
 Figure~\ref{fig:gs-money} shows the total monetary value of Gutschrift
-credit notes per year, peaking at over 9.1~million~EUR in T23~(2023).
+credit notes per year, peaking at over 9.1~million~EUR in 2023.
 Figure~\ref{fig:bl-cost} shows the total cost per year for Belastungsanzeige
-charge notifications.
+charge notifications.  The same reliability caveat applies: only the values
+from~2022 onwards should be treated as representative.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/gutschrift_money_spent.png}
-    \caption{Total Gutschrift credit note value per year in EUR (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/gutschrift_money_spent.png}
+    \caption{Total Gutschrift credit note value per year in EUR (2016 to 2025).}
     \label{fig:gs-money}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/belastungsanzeige_cost_per_year.png}
-    \caption{Total Belastungsanzeige cost per year in 1000~EUR (2016--2025).}
+    \includegraphics[width=0.95\textwidth]{figures/belastungsanzeige_cost_per_year.png}
+    \caption{Total Belastungsanzeige cost per year in 1000~EUR (2016 to 2025).}
     \label{fig:bl-cost}
 \end{figure}
 
@@ -190,7 +204,7 @@ Each tool exhibited a characteristic failure mode:
     \item \textbf{Tabula (6/15).}  Tabula is specialised for table extraction
           and performed well \emph{only} on the tabular regions of a document.
           As shown in Figure~\ref{fig:tool-tabula}, it correctly reconstructs
-          the key--value table~(Lieferschein-Nr., LS-Datum, Auftrag~Nr.) but
+          the key-value table~(Lieferschein-Nr., LS-Datum, Auftrag~Nr.) but
           populates many cells with \texttt{nan} and ignores all
           non-tabular text, so most documents were only partially captured.
 
@@ -216,7 +230,7 @@ Each tool exhibited a characteristic failure mode:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/tool_tabula.png}
+    \includegraphics[width=0.92\textwidth]{figures/tool_tabula.png}
     \caption{Tabula output. Tables are reconstructed but many cells are
              \texttt{nan} and non-tabular text is dropped.}
     \label{fig:tool-tabula}
@@ -224,7 +238,7 @@ Each tool exhibited a characteristic failure mode:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/tool_docling.png}
+    \includegraphics[width=0.92\textwidth]{figures/tool_docling.png}
     \caption{Docling output. Fields are linearised and table structure
              is lost when exporting to CSV.}
     \label{fig:tool-docling}
@@ -232,7 +246,7 @@ Each tool exhibited a characteristic failure mode:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/tool_spire.png}
+    \includegraphics[width=0.85\textwidth]{figures/tool_spire.png}
     \caption{Spire output. A flat, unstructured stream of values
              similar to MarkItDown.}
     \label{fig:tool-spire}
@@ -240,7 +254,7 @@ Each tool exhibited a characteristic failure mode:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/tool_pymupdf4llm.png}
+    \includegraphics[width=0.92\textwidth]{figures/tool_pymupdf4llm.png}
     \caption{PyMuPDF4LLM output. Header block and tabular structure are
              preserved as proper Markdown tables.}
     \label{fig:tool-pymupdf4llm}
@@ -327,13 +341,13 @@ Beyond document-category detection, regex patterns extract:
 
 \begin{itemize}
     \item Machine serial numbers~(e.g.\ \verb|UX\d{7,}|, \verb|CYA\d{7,}|)
-    \item Article numbers~(5--8-digit sequences preceded by part-list context)
+    \item Article numbers~(5 to 8 digit sequences preceded by part-list context)
     \item RMA numbers~(\verb|RMA[-\s]?\d+|)
     \item Referenced ticket numbers~(\verb|T\d{9}|)
     \item Change numbers~(\verb|CN\d{7,}|)
 \end{itemize}
 
-This rule-based layer addresses RQ\,1 directly: structured, pattern-conformant
+This rule-based layer addresses RQ\,1.1 directly: structured, pattern-conformant
 information is captured without an LLM.  The LLM is reserved for extracting
 the problem statement, solution, and semantic tags from the narrative text.
 
@@ -355,8 +369,8 @@ three distinct ticket categories:
           stock adjustments, logistics issues.
 \end{itemize}
 
-Tickets were selected to ensure coverage of different years~(2016--2025),
-a variety of email-thread lengths~(1--20+ messages), and both resolved and
+Tickets were selected to ensure coverage of different years~(2016 to 2025),
+a variety of email-thread lengths~(1 to 20+ messages), and both resolved and
 unresolved cases.  The benchmark composition is 50~Gutschrift,
 100~Belastungsanzeige, and 100~Lagerbelastung tickets, chosen to balance
 category representation with the relative complexity of each type.
@@ -392,7 +406,7 @@ email.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/benchmark_file_type_distribution.png}
+    \includegraphics[width=0.95\textwidth]{figures/benchmark_file_type_distribution.png}
     \caption{Distribution of source file types in the benchmark Markdown files.}
     \label{fig:benchmark-filetypes}
 \end{figure}
@@ -403,7 +417,7 @@ consist entirely of non-email files.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/ticket_classification.png}
+    \includegraphics[width=0.88\textwidth]{figures/ticket_classification.png}
     \caption{Ticket classification: tickets with .msg.md files vs other files only.}
     \label{fig:ticket-classification}
 \end{figure}
@@ -415,7 +429,7 @@ threads with attachments.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/file_distribution_per_ticket.png}
+    \includegraphics[width=0.95\textwidth]{figures/file_distribution_per_ticket.png}
     \caption{Distribution of files per ticket in the benchmark dataset.}
     \label{fig:files-per-ticket}
 \end{figure}
@@ -426,7 +440,7 @@ Each ticket was annotated by a single domain expert with knowledge of
 Amazone's service operations.  The annotation task comprised:
 
 \begin{enumerate}
-    \item Assigning 1--4 tags from a predefined taxonomy of
+    \item Assigning 1 to 4 tags from a predefined taxonomy of
           \textbf{126 approved tags}~(e.g.\ \texttt{warranty\_claim},
           \texttt{billing\_error}, \texttt{defect\_report}).
     \item Writing a short free-text Problem and Solution statement.
@@ -453,7 +467,7 @@ The self-agreement F1 was \(0.78\), indicating acceptable consistency.
 %
 All open-source models are served via \textbf{Ollama}~(v0.3), a lightweight
 local inference server, on a dedicated GPU server~(\texttt{ve-ds-nns-01}).
-The server is equipped with sufficient VRAM to run 8B--20B parameter models
+The server is equipped with sufficient VRAM to run 8B to 20B parameter models
 at 4-bit quantisation.  The OpenWebUI front-end is used for interactive
 testing and context-window verification.
 
@@ -501,7 +515,7 @@ Each ticket is processed with \textbf{two sequential API calls}:
 \begin{enumerate}
     \item \textbf{Extraction call.}  The model receives the full ticket text
           and is instructed to return a JSON object with three fields:
-          \texttt{Problem}~(1--2 sentences), \texttt{Solution}~(1--2 sentences),
+          \texttt{Problem}~(one to two sentences), \texttt{Solution}~(one to two sentences),
           and \texttt{items}~(a JSON array of typed entity references).
           The prompt embeds explicit reasoning steps~(identify the problem,
           search for a solution, extract entities) to guide chain-of-thought
@@ -549,37 +563,48 @@ For each row in the 250-ticket benchmark CSV, the script:
 A one-second sleep is inserted between rows to reduce load on the GPU
 server~\texttt{ve-ds-nns-01:11434}.
 
-\subsection{Evaluation Protocol 1 -- Blind Tag Evaluation}
+\subsection{Evaluation Protocol 1: Blind Tag Evaluation}
 \label{subsec:blind-eval}
 %
 In the blind tag evaluation the model receives only the raw ticket text and
 the approved tag taxonomy~(126~tags); it has no access to the human
 annotations.  The predicted tag set is compared to the ground-truth tags
-using token-level precision~$P$, recall~$R$, and F1:
+using token-level precision~$P$, recall~$R$, and the F1 score, which is the
+harmonic mean of precision and recall:
 
 \begin{equation}
     F_1 = \frac{2 \cdot P \cdot R}{P + R}
+    \label{eq:f1}
 \end{equation}
 
-The evaluation is run separately for each category~(GS, BL, LB); the
+In Equation~\ref{eq:f1}, precision~$P$ is the proportion of the tags predicted
+by the model that also appear in the human ground truth, so it measures how
+many of the model's tags were correct.  Recall~$R$ is the proportion of the
+human ground-truth tags that the model successfully predicted, so it measures
+how many of the correct tags the model managed to find.  The F1 score~$F_1$
+combines the two into a single value between~0 and~1, where a higher value
+indicates a better balance between predicting correct tags and finding all of
+them.  Because the harmonic mean is used, a model can only achieve a high F1
+score if \emph{both} precision and recall are high; a model that scores well on
+one but poorly on the other is penalised.
+
+The evaluation is run separately for each category~(GS, BL, LB), and the
 macro-average F1 across the three categories serves as the primary ranking
-metric.  Two additional indicators are reported:
+metric.  Two additional indicators are reported.  The \emph{over-tagging rate},
+defined as $1-P$, is the fraction of predicted tags that do not appear in the
+ground truth and therefore captures how often the model invents superfluous
+tags.  The \emph{under-tagging rate}, defined as $1-R$, is the fraction of
+ground-truth tags that the model failed to predict and therefore captures how
+often the model misses a relevant tag.
 
-\begin{itemize}
-    \item \textbf{Over-tagging rate}: fraction of predicted tags not in the
-          ground truth~($1-P$).
-    \item \textbf{Under-tagging rate}: fraction of ground-truth tags missed
-          by the model~($1-R$).
-\end{itemize}
-
-\subsection{Evaluation Protocol 2 -- LLM-as-Judge}
+\subsection{Evaluation Protocol 2: LLM-as-Judge}
 \label{subsec:judge-eval}
 %
 Because F1 penalises semantically equivalent but lexically different
 tags~\cite{zheng2024judging}, a second evaluation track uses GPT-4o as an
 automatic judge.  The judge receives the original ticket, the human
 annotations, and the model-generated output, then rates it on two
-1--5~Likert dimensions:
+1 to 5 Likert dimensions:
 
 \begin{description}
     \item[\textbf{Tag Usefulness~(TU)}:] Do the generated tags meaningfully

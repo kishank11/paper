@@ -7,7 +7,7 @@
 Modern industrial companies accumulate thousands of service tickets every year.
 A single ticket at an agricultural machinery manufacturer such as Amazone~Werke
 can span dozens of email exchanges, multi-page PDF invoices, spreadsheet attachments,
-and scanned delivery notes~--~all in a mix of German, English, and occasionally French
+and scanned delivery notes, all in a mix of German, English, and occasionally French
 or Dutch. Extracting actionable information from this heterogeneous corpus manually
 is slow, inconsistent, and impossible to scale.
 
@@ -15,8 +15,8 @@ Advances in Large Language Models~(LLMs) offer a promising alternative. Models
 such as Llama~3, Gemma~3, and GPT-4o have demonstrated strong zero-shot
 capabilities in information extraction and text classification, even in specialised,
 domain-specific settings. However, applying these models to real-world industrial
-service data~--~with its multilingual content, verbose email threads, and
-domain-specific abbreviations~--~requires a principled experimental evaluation that
+service data, with its multilingual content, verbose email threads, and
+domain-specific abbreviations, requires a principled experimental evaluation that
 is largely absent from the academic literature.
 
 This thesis addresses that gap. It designs and evaluates an end-to-end pipeline that
@@ -62,16 +62,17 @@ meaning.
 \section{Research Questions}
 \label{sec:rq}
 %
-The thesis is structured around one main research question and two sub-questions.
+The thesis is structured around one main research question and two
+sub-questions that refine it.
 
 \begin{description}
-    \item[\textbf{RQ~(Main):}] \emph{Can Large Language Models reliably extract
+    \item[\textbf{RQ\,1 (Main):}] \emph{Can Large Language Models reliably extract
           actionable insights from industrial service tickets?}
 
-    \item[\textbf{RQ\,1:}] \emph{Which ticket information can be captured reliably
+    \item[\textbf{RQ\,1.1:}] \emph{Which ticket information can be captured reliably
           with rule-based extraction, and which parts require LLMs?}
 
-    \item[\textbf{RQ\,2:}] \emph{Which LLM produces the most useful and coherent
+    \item[\textbf{RQ\,1.2:}] \emph{Which LLM produces the most useful and coherent
           insights on the benchmark tickets?}
 \end{description}
 

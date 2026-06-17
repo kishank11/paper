@@ -10,11 +10,11 @@ Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
 Section~\ref{sec:res-semantic} analyses semantic similarity between model
 outputs and the ticket content.
 Section~\ref{sec:res-oss} compares the open-source models,
-Section~\ref{sec:res-fullrun} discusses the full-corpus run, and
+Section~\ref{sec:res-fullrun} describes the large-scale run on the full archive, and
 Section~\ref{sec:observations} summarises cross-cutting observations.
 
 %----------------------------------------------------------------------
-\section{Blind Tag Evaluation -- F1 Scores}
+\section{Blind Tag Evaluation: F1 Scores}
 \label{sec:res-f1}
 %
 \subsection{All Models vs Human Tags Baseline}
@@ -62,7 +62,7 @@ over-tagging.  Third, \texttt{qwen3\_14b} achieves the highest
 accuracy~(0.9412) but at the cost of low recall~(0.2539), suggesting a
 conservative tagging strategy.
 
-\subsection{Performance of Rule-based Extraction (RQ1)}
+\subsection{Performance of Rule-based Extraction (RQ\,1.1)}
 \label{subsec:regex-res}
 %
 Table~\ref{tab:regex-results} shows the performance of the regular expression
@@ -166,7 +166,7 @@ overlook when manually scanning long email threads.
 \label{subsec:judge-composite}
 %
 In a second judge evaluation, GPT-5.5 was given 28~base tags and asked to
-rate the Problem/Solution quality of each model on a 0--10~scale and to assess
+rate the Problem/Solution quality of each model on a 0 to 10 scale and to assess
 the usefulness of the model's tags as a percentage.  The four open-source
 models were then ranked on each metric, and a \emph{composite} score was
 derived from these ranks and rescaled so that the best-performing model
@@ -178,13 +178,13 @@ not that it achieved perfect output.
 \begin{table}[H]
     \centering
     \caption{GPT-5.5 judge results for the four open-source candidate models:
-             P/S quality, tag usefulness, and the relative composite ranking
+             Problem/Solution quality, tag usefulness, and the relative composite ranking
              score. 665~extended tags were evaluated. Per-metric ranks are
              shown in parentheses.}
     \label{tab:judge-results}
     \begin{tabular}{clccc}
         \hline
-        \textbf{Rank} & \textbf{Model} & \textbf{P/S Quality} & \textbf{Usefulness} & \textbf{Composite (rel.)} \\
+        \textbf{Rank} & \textbf{Model} & \textbf{Problem/Solution Quality} & \textbf{Usefulness} & \textbf{Composite (rel.)} \\
         \hline
         1st & GPTOSS      & 6.09/10 (R1) & 65.6\% (R1) & 100.0 \\
         2nd & GEMMA4       & 4.54/10 (R3) & 39.6\% (R2) &  62.5 \\
@@ -198,7 +198,7 @@ Among the four open-source models evaluated by the judge, GPTOSS ranks first on
 both the Problem/Solution quality~(6.09/10) and the usefulness~(65.6\,\%)
 metric, giving it the top relative composite score.  Its lead is driven mainly
 by the large usefulness margin over the runner-up GEMMA4~(65.6\,\% versus
-39.6\,\%).  Notably, QWEN3\_14B ranks second on P/S quality~(5.27) but only
+39.6\,\%).  Notably, QWEN3\_14B ranks second on Problem/Solution quality~(5.27) but only
 fourth on usefulness~(29.2\,\%), indicating that it produces well-reasoned but
 less practically relevant tags.
 
@@ -266,7 +266,7 @@ blind tag generation task.
 
 \subsection{Combined Semantic Average}
 %
-Table~\ref{tab:combined-avg} aggregates the P/S and Blind Tag ensemble
+Table~\ref{tab:combined-avg} aggregates the Problem/Solution and Blind Tag ensemble
 averages into a single combined score.
 
 \begin{table}[H]
@@ -296,7 +296,7 @@ yields higher similarity scores than the Blind Tag task (overall average
 easier for LLMs than generating appropriate categorical tags.
 
 %----------------------------------------------------------------------
-\section{Open-Source Model Comparison (RQ2)}
+\section{Open-Source Model Comparison (RQ\,1.2)}
 \label{sec:res-oss}
 %
 Based on the intermediate results from all three evaluation protocols, two
@@ -314,35 +314,46 @@ while GEMMA4 excels at recall-oriented tasks.  These two models are carried
 forward into the full-corpus run described in Section~\ref{sec:res-fullrun}.
 
 %----------------------------------------------------------------------
-\section{Full Run on the Complete Corpus}
+\section{Scaling Up: Running the Best Model on the Whole Archive}
 \label{sec:res-fullrun}
 %
-The benchmark study reported above is restricted to the 250-ticket annotated
-benchmark.  In a final step, the best-performing configuration identified on
-the benchmark is applied to the entire Amazone~Werke ticket corpus.  As
-reported on the presentation slides, the final prompt was run on a chunk of
-2025~data, processing 2742~out of~5730 tickets (approximately 48\%).
+Everything reported so far was measured on the carefully annotated set of
+250~benchmark tickets.  That benchmark exists to answer a narrow question:
+which model is best?  Once that question is settled, a second and more practical
+question follows naturally: what happens when the winning model is let loose on
+the company's entire ticket archive, not just the curated sample?  This section
+describes that final, large-scale run.
 
-\subsection{Throughput and Resource Consumption}
-%
-\textit{To be reported once the full run is complete.}  The relevant figures
-are wall-clock time per ticket, total GPU-hours, peak VRAM usage, and the
-fraction of tickets for which the model returned schema-conformant JSON on
-the first attempt versus those that required the post-hoc repair parser.
+The best-performing configuration from the benchmark was applied to a large
+slice of the 2025~data, processing 2{,}742 of the 5{,}730 available
+tickets~(roughly~48\,\%).  The purpose of this run is twofold.  It produces a
+fully tagged dataset that the company can actually use for downstream analysis,
+and it lets us observe how the model behaves on the messier, more varied tickets
+that never made it into the clean benchmark.
 
-\subsection{Distribution of Generated Tags}
+\subsection{How Fast and How Expensive Was It?}
 %
-\textit{To be reported once the full run is complete.}  A histogram of the
-126~approved tags across the full corpus will indicate which service
-categories dominate the overall ticket population and whether the
-distribution differs substantially from the stratified 250-ticket benchmark.
+\textit{To be reported once the full run is complete.}  The practical questions
+here are how long the model takes per ticket, how many GPU-hours the whole run
+consumes, how much memory it needs at peak, and how often the model returns
+clean, well-formed JSON on the first try versus how often its output has to be
+repaired before it can be used.
 
-\subsection{Qualitative Findings on Out-of-Benchmark Categories}
+\subsection{Which Tags Show Up Most Often?}
 %
-\textit{To be reported once the full run is complete.}  A random sample of
-tickets outside the three benchmark categories will be reviewed manually to
-assess whether the model degrades gracefully or fails systematically when
-the input lies outside the GS/BL/LB distribution it was tuned for.
+\textit{To be reported once the full run is complete.}  Counting how often each
+of the 126~approved tags appears across the full archive will reveal which kinds
+of service problems dominate in practice, and whether the real-world mix of
+tickets looks like the balanced benchmark or leans heavily towards a few common
+categories.
+
+\subsection{What Happens on Tickets the Model Was Not Tuned For?}
+%
+\textit{To be reported once the full run is complete.}  The benchmark covered
+only the three categories Gutschrift, Belastungsanzeige, and Lagerbelastung.  A
+manual review of a random sample of tickets that fall outside these three groups
+will show whether the model stays sensible and useful on unfamiliar input, or
+whether it breaks down in predictable ways once it leaves familiar territory.
 
 %----------------------------------------------------------------------
 \section{Observations}

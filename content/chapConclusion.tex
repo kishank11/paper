@@ -16,8 +16,8 @@ The work proceeded in three stages.  The first stage was data engineering: a
 preprocessing pipeline was built to convert heterogeneous ticket
 attachments~(MSG, PDF, DOCX, XLSX) into a unified Markdown representation, and a
 rule-based pattern-extraction layer was added to capture structured
-fields~--~document categories, article numbers, machine serial numbers, and RMA
-codes~--~without invoking an LLM.  The second stage was benchmark construction:
+fields (document categories, article numbers, machine serial numbers, and RMA
+codes) without invoking an LLM.  The second stage was benchmark construction:
 250~tickets were selected, annotated by a human expert with ground-truth tags
 from a 126-tag taxonomy, and split into three category subsets.  The third
 stage was the LLM evaluation itself, in which fifteen model configurations were
@@ -29,7 +29,7 @@ LLM-as-judge rubric capturing tag usefulness and reasoning coherence.
 \section{Answers to the Research Questions}
 \label{sec:rq-answers}
 %
-\paragraph{Main RQ: Can LLMs be used to reliably extract structured insights
+\paragraph{RQ\,1 (Main): Can LLMs be used to reliably extract structured insights
 from industrial service tickets?}
 The experiments confirm that LLMs are a viable tool for this task,
 \emph{provided the prompts are carefully designed}.  Models with sufficiently
@@ -39,7 +39,7 @@ human annotations at an F1 level of up to 0.39 for zero-shot tagging.
 While fully replacing human annotation remains a challenge, the models
 provide significant value in automated triage and insight synthesis.
 
-\paragraph{RQ\,1: Which types of information can be reliably extracted
+\paragraph{RQ\,1.1: Which types of information can be reliably extracted
 via rule-based patterns versus LLM inference?}
 The hybrid pipeline approach is strongly validated. Structured, pattern-conformant
 information~(machine serials, article numbers, RMA codes) is extracted with
@@ -48,14 +48,17 @@ narrative content such as problem summaries and semantic tags requires LLM
 reasoning, where model-based extraction significantly outperforms any
 potential rule-based approach.
 
-\paragraph{RQ\,2: Which LLM configuration produces the most useful and
+\paragraph{RQ\,1.2: Which LLM configuration produces the most useful and
 coherent insights in this industrial context?}
-\texttt{gpt-oss:20b}~(GPTOSS) emerged as the best-performing open-source
-configuration, achieving the highest macro-average F1~(0.393) and the
-highest judge score~($J=4.24$). It outperformed larger models like
-\texttt{gemma4:26b}, suggesting that domain-specific instruction tuning
-or architectural efficiency is more critical than raw parameter count in
-the 20B--30B range.
+The answer depends on whether proprietary models are permitted.  Across the
+fifteen configurations, the proprietary \texttt{gpt-5.4-mini} achieved the
+highest token-level F1~(0.394) against the human tags.  Among the locally
+hosted open-source models, however, \texttt{gpt-oss:20b}~(GPTOSS) was the
+strongest overall: it ranked first in the LLM-as-judge evaluation for both
+Problem/Solution quality~(6.09/10) and tag usefulness~(65.6\,\%), despite
+ranking only fourth on raw F1~(0.356).  GPTOSS outperformed larger models such
+as \texttt{qwen3:14b}, which suggests that instruction tuning and architectural
+efficiency matter more than raw parameter count in the 14B to 20B range.
 
 %----------------------------------------------------------------------
 %----------------------------------------------------------------------
@@ -63,7 +66,7 @@ the 20B--30B range.
 \label{sec:future-work}
 %
 \begin{enumerate}
-    \item \textbf{Fine-tuning.}  Fine-tuning a 7B--14B model on the annotated
+    \item \textbf{Fine-tuning.}  Fine-tuning a 7B to 14B model on the annotated
           benchmark could close the gap with GPTOSS at significantly lower
           inference cost.
 

@@ -36,7 +36,7 @@ reasoning baselines \emph{but with substantially higher factual accuracy}, and
 they observed that introducing explicit chain-of-thought reasoning yielded the
 lowest hallucination rates.  Notably, they also report that adding more context
 (historical incident discussions) did \emph{not} yield significant performance
-improvements~--~a cautionary result for context-stuffing approaches.
+improvements, a cautionary result for context-stuffing approaches.
 \citeauthor{pei2025flowofaction}~\cite{pei2025flowofaction} extended the agent
 paradigm with standard-operating-procedure guidance to constrain the diagnostic
 search in a multi-agent setting.
@@ -143,8 +143,8 @@ feasible and often accurate, but they mostly optimise routing or label
 assignment rather than extracting and synthesising actionable insights from the
 combination of emails, PDFs, and attachments.
 
-Industrial service tickets for physical machinery~--~multilingual,
-attachment-heavy, and spanning years of email threads~--~are comparatively
+Industrial service tickets for physical machinery, which are multilingual,
+attachment-heavy, and span years of email threads, are comparatively
 understudied.  The closest related work by
 \citeauthor{hassan2023llm}~\cite{hassan2023llm}
 applies GPT-4 to manufacturing quality reports but does not address the
@@ -173,7 +173,7 @@ outputting a comma-separated list of labels or a JSON array.  The blind-tag
 evaluation protocol used in this thesis follows the approach of
 \citeauthor{yang2023llm4label}~\cite{yang2023llm4label}, who found that
 LLMs outperform fine-tuned classifiers when the label set is large and the
-training data is scarce~--~precisely the setting of this thesis.
+training data is scarce, precisely the setting of this thesis.
 
 An important distinction is between \emph{accuracy-oriented} evaluation~(strict
 match against a fixed ground truth) and \emph{usefulness-oriented} evaluation.
@@ -228,9 +228,9 @@ prior work.
         \textbf{Work} & \textbf{LLM} & \textbf{Industrial} & \textbf{Multi-lingual}
                       & \textbf{Multi-label} & \textbf{Benchmark} \\
         \hline
-        Yang~et~al.~\cite{yang1999reevaluation}   & -- & -- & -- & \checkmark & \checkmark \\
-        Hassan~et~al.~\cite{hassan2023llm}         & \checkmark & \checkmark & -- & -- & -- \\
-        Yang~et~al.~\cite{yang2023llm4label}       & \checkmark & -- & -- & \checkmark & \checkmark \\
+        Yang~et~al.~\cite{yang1999reevaluation}   & $\times$ & $\times$ & $\times$ & \checkmark & \checkmark \\
+        Hassan~et~al.~\cite{hassan2023llm}         & \checkmark & \checkmark & $\times$ & $\times$ & $\times$ \\
+        Yang~et~al.~\cite{yang2023llm4label}       & \checkmark & $\times$ & $\times$ & \checkmark & \checkmark \\
         \textbf{This thesis}                        & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
         \hline
     \end{tabular}

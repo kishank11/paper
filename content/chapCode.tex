@@ -214,7 +214,7 @@ def f1_score(pred: list[str], gold: list[str]) -> tuple[float, float, float]:
 %
 The judge prompt presents the ticket, the ground-truth annotation, and the
 candidate model's output, then asks GPT-4o to rate Tag Usefulness~(TU) and
-Reasoning Coherence~(RC) on a 1--5 Likert scale.
+Reasoning Coherence~(RC) on a 1 to 5 Likert scale.
 
 \begin{verbatim}
 JUDGE_PROMPT = """

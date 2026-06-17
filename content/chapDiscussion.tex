@@ -4,8 +4,46 @@
 %
 This chapter interprets the results presented in Chapter~\ref{chap:Results}
 and discusses the key findings in relation to the research questions.
+Section~\ref{sec:disc-tags} describes how the tag taxonomy was developed.
 Section~\ref{sec:disc-findings} analyses the main results.
 Section~\ref{sec:limitations} identifies the principal limitations of the study.
+
+%----------------------------------------------------------------------
+\section{Development of the Tag Taxonomy}
+\label{sec:disc-tags}
+%
+The set of tags used in this thesis was not fixed in advance.  It emerged from
+a multi-iteration process that deserves discussion, because the quality of the
+taxonomy directly shapes the quality of every result that depends on it.
+
+The process began manually.  Working through the benchmark tickets by hand, an
+initial set of roughly 28~tags was identified that captured the most common and
+clearly recurring themes in the service data.  This small, hand-curated set
+served as a reliable starting point, but it was far from exhaustive.
+
+To broaden the coverage, the language models were then asked to generate tags
+freely across the corpus.  This produced a very large pool of around
+1{,}789~candidate tags.  While this confirmed that the models were capable of
+proposing fine-grained labels, the raw output was unsuitable for direct use:
+many of the generated tags were vague, overlapping in meaning, or near
+duplicates of one another, and some were too specific to apply to more than a
+single ticket.
+
+The decisive step was therefore a deliberate quality-control pass over this
+pool.  Rather than maximising the number of tags, the goal was to make the
+taxonomy clear and consistent.  Tags that were vague were either sharpened or
+removed, near-duplicates were merged into a single canonical label, and
+ambiguous labels were rewritten so that each tag had a distinct and
+well-defined meaning.  This reduced the unwieldy candidate pool to the curated
+set documented in Appendix~\ref{chap:TagTaxonomy}.
+
+Finally, to ensure that the resulting taxonomy was not merely internally
+consistent but also correct from a domain perspective, the refined tag set was
+reviewed and confirmed by a domain expert at the company, Dr.~Florian~Rahe.
+This expert validation gives the taxonomy a level of authority that a purely
+data-driven or purely manual approach could not achieve on its own, and it is
+the reason the tags can be treated as a trustworthy ground truth in the
+evaluation.
 
 %----------------------------------------------------------------------
 \section{Discussion of Findings}
@@ -24,7 +62,8 @@ a production deployment at Amazone Werke.
 %
 A positive correlation is observed between model size and evaluation
 performance~(both F1 and judge score), with notable exceptions.  The
-reasoning-optimised models~\texttt{deepseek-r1:14b} and \texttt{qwen3:14b}
+reasoning-optimised models \texttt{deepseek-r1:\allowbreak14b} and
+\texttt{qwen3:\allowbreak14b}
 outperform standard instruction-tuned models of comparable size, suggesting
 that chain-of-thought training is beneficial for structured extraction even
 in a zero-shot setting.  This finding implies that architecture choices

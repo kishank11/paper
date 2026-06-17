@@ -4,8 +4,8 @@
 %
 This chapter presents the quantitative and qualitative results of the
 evaluation protocols described in Chapter~\ref{chap:Methodology}.
-Section~\ref{sec:res-f1} reports token-level F1 scores from the blind tag
-evaluation against human annotations.
+Section~\ref{sec:res-f1} reports token-level F1 scores comparing each model's
+tags against the human ground truth.
 Section~\ref{sec:res-judge} presents the LLM-as-judge ratings.
 Section~\ref{sec:res-semantic} analyses semantic similarity between model
 outputs and the ticket content.
@@ -14,13 +14,15 @@ Section~\ref{sec:res-fullrun} describes the large-scale run on the full archive,
 Section~\ref{sec:observations} summarises cross-cutting observations.
 
 %----------------------------------------------------------------------
-\section{Blind Tag Evaluation: F1 Scores}
+\section{Tag Evaluation Against Human Ground Truth: F1 Scores}
 \label{sec:res-f1}
 %
 \subsection{All Models vs Human Tags Baseline}
 \label{subsec:f1-all}
 %
-Table~\ref{tab:f1-results} summarises the token-level F1, Precision, Recall,
+This section reports how closely each model's predicted tags match the
+28~human-defined ground-truth tags, measured with the token-level F1 score.
+Table~\ref{tab:f1-results} summarises the F1, Precision, Recall,
 and Accuracy scores for all fifteen model configurations evaluated against
 the human-annotated ground-truth tags.  All scores are macro-averaged over
 the 250~benchmark tickets.
@@ -93,14 +95,19 @@ entirely on narrative reasoning.
 \label{subsec:tagging-profiles}
 %
 Table~\ref{tab:tagging-profiles} characterises each model's tagging behaviour
-in terms of volume and diversity.  Total tags refers to the number of tags
-produced across all processed tickets; unique tags indicates how many distinct
-tag strings the model generated; and average tags per ticket is the mean tag
+in terms of volume and diversity.  These profiles were produced in an
+exploratory run in which the models were deliberately given no instruction
+about \emph{how many} tags to generate and no hints about the desired
+granularity.  The intention was to observe each model's unconstrained
+behaviour: left to its own devices, how many tags does a model produce, and
+how varied are they?  In the table, total tags refers to the number of tags
+produced across all processed tickets, unique tags indicates how many distinct
+tag strings the model generated, and average tags per ticket is the mean tag
 count per ticket.
 
 \begin{table}[H]
     \centering
-    \caption{LLM tagging profiles: volume and diversity of generated tags.}
+    \caption[LLM tagging profiles]{LLM tagging profiles: volume and diversity of generated tags, produced without any instruction on tag count or granularity.}
     \label{tab:tagging-profiles}
     \begin{tabular}{lrrrr}
         \hline
@@ -119,12 +126,15 @@ count per ticket.
     \end{tabular}
 \end{table}
 
-All models converge on approximately eight tags per ticket, suggesting that
-the prompt design effectively constrains tag count.  However, the number of
-\textit{unique} tags varies dramatically: \texttt{qwen2.5} produces only~29
-distinct tags, while \texttt{deepseek-r1~(7b)} generates~182.  A high unique
-tag count signals that the model invents ad hoc labels rather than reusing
-the approved taxonomy.
+Even without an explicit instruction, all models settled on roughly eight tags
+per ticket, which suggests this is a natural granularity for the task.  The
+number of \emph{unique} tags, however, varies dramatically: \texttt{qwen2.5}
+reuses a small vocabulary of only~29 distinct tags, whereas
+\texttt{deepseek-r1~(7b)} produces~182.  A high unique-tag count signals that
+the model invents ad hoc labels rather than converging on a consistent
+vocabulary, and it was precisely this uncontrolled proliferation of labels
+that motivated the quality-control and consolidation process described in
+Section~\ref{sec:disc-tags}.
 
 %----------------------------------------------------------------------
 \section{LLM-as-Judge Evaluation}
@@ -177,7 +187,7 @@ not that it achieved perfect output.
 
 \begin{table}[H]
     \centering
-    \caption{GPT-5.5 judge results for the four open-source candidate models:
+    \caption[GPT-5.5 judge results for the four open-source candidate models]{GPT-5.5 judge results for the four open-source candidate models:
              Problem/Solution quality, tag usefulness, and the relative composite ranking
              score. 665~extended tags were evaluated. Per-metric ranks are
              shown in parentheses.}
@@ -218,7 +228,7 @@ Problem/Solution extraction task.
 
 \begin{table}[H]
     \centering
-    \caption{Semantic similarity of Problem/Solution output to ticket content
+    \caption[Semantic similarity of Problem/Solution output to ticket content]{Semantic similarity of Problem/Solution output to ticket content
              (ensemble average of four embedding models).}
     \label{tab:semantic-ps}
     \begin{tabular}{llccccc}
@@ -395,16 +405,38 @@ narrative text, leaving the model little signal to reason from, and they
 consequently exhibited the highest under-tagging rate as models failed to
 infer latent service actions from article numbers alone.
 
-\subsection{Language-specific Errors and Normalisation}
+\subsection{Tag Normalisation and Surface-Form Errors}
 \label{sec:results-language}
 %
-Although all models are instructed to produce English output, smaller models
-occasionally respond in German when the input is entirely in German.  This
-causes tag-matching failures because the F1 evaluation is case- and
-language-sensitive.  German compound words~(e.g.~\textit{Lagerbelastung})
-are sometimes reproduced verbatim rather than translated to the approved
-English tag equivalent, lowering precision.  Normalising model output to
-lower-case English before F1 evaluation partially mitigates this effect.
-The benchmark language distribution~(82.8\% German, 15.7\% English, 1.1\%
-Russian, 0.3\% Spanish, 0.2\% Estonian) means that the majority of inputs
-trigger the German code-switching problem.
+Because the F1 evaluation compares tag strings, it is sensitive to superficial
+differences in how a tag is written even when the meaning is identical.  Four
+distinct sources of such surface-form mismatch were observed, and each had to
+be normalised before a fair comparison was possible.
+
+The first is language.  Although all models are instructed to produce English
+output, the smaller models occasionally respond in German when the input is
+entirely in German.  German compound words such as \textit{Lagerbelastung} are
+then reproduced verbatim instead of being mapped to the approved English tag,
+which lowers precision.  Given the benchmark language
+distribution~(82.8\,\% German, 15.7\,\% English, 1.1\,\% Russian, 0.3\,\%
+Spanish, 0.2\,\% Estonian), the large German majority makes this
+code-switching problem common.
+
+The second is grammatical number: a model might emit \texttt{missing\_part} in
+one ticket and \texttt{missing\_parts} in another, so singular and plural forms
+of the same concept were folded together.
+
+The third is the choice of separator.  The same tag was variously written with
+a hyphen, a space, or an underscore between words; all separators were
+normalised to a single canonical form using the underscore, so that
+\texttt{spare\_part}, \texttt{spare-part}, and \texttt{spare part} are treated
+as one tag.
+
+The fourth, and most subtle, is synonymy: two different tags sometimes express
+the same underlying meaning through synonyms, and these were consolidated onto
+a single canonical label so that semantically identical tags were no longer
+counted as mismatches.
+
+After applying all four normalisation steps, together with lower-casing, the
+predicted tags can be compared against the ground truth on a meaning-preserving
+basis rather than being penalised for purely cosmetic differences.

@@ -12,26 +12,18 @@ ten model configurations.
 \section{Summary of Work}
 \label{sec:summary}
 %
-The work proceeded in three stages:
-
-\begin{enumerate}
-    \item \textbf{Data engineering.}  A preprocessing pipeline was built to
-          convert heterogeneous ticket attachments~(MSG, PDF, DOCX, XLSX)
-          into a unified Markdown representation.  A rule-based pattern
-          extraction layer was added to capture structured fields~(document
-          categories, article numbers, machine serial numbers, RMA codes)
-          without an LLM.
-
-    \item \textbf{Benchmark construction.}  250~tickets were selected,
-          annotated by a human expert with ground-truth tags from a
-          126-tag taxonomy, and split into three category subsets.
-
-    \item \textbf{LLM evaluation.}  Ten model configurations were evaluated
-          using a two-call extraction and tagging protocol.  Results were
-          assessed with token-level F1 against the human annotations and via
-          an LLM-as-judge rubric measuring tag usefulness and reasoning
-          coherence.
-\end{enumerate}
+The work proceeded in three stages.  The first stage was data engineering: a
+preprocessing pipeline was built to convert heterogeneous ticket
+attachments~(MSG, PDF, DOCX, XLSX) into a unified Markdown representation, and a
+rule-based pattern-extraction layer was added to capture structured
+fields~--~document categories, article numbers, machine serial numbers, and RMA
+codes~--~without invoking an LLM.  The second stage was benchmark construction:
+250~tickets were selected, annotated by a human expert with ground-truth tags
+from a 126-tag taxonomy, and split into three category subsets.  The third
+stage was the LLM evaluation itself, in which fifteen model configurations were
+assessed using a two-call extraction and tagging protocol; the results were
+measured both with token-level F1 against the human annotations and through an
+LLM-as-judge rubric capturing tag usefulness and reasoning coherence.
 
 %----------------------------------------------------------------------
 \section{Answers to the Research Questions}

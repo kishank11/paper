@@ -65,36 +65,29 @@ prior work on domain-aware prompting~\cite{brown2020language}.
 \section{Limitations}
 \label{sec:limitations}
 %
-\begin{itemize}
-    \item \textbf{Single annotator.}  The benchmark relies on annotations by
-          a single domain expert.  True inter-annotator agreement was measured
-          only on a 25-ticket self-agreement check~(F1~$= 0.78$).  Disagreements
-          between annotators could shift the F1 rankings between close
-          competitors.
+Several limitations qualify the findings of this thesis.  The most important
+concerns the annotation process: the benchmark relies on annotations by a
+single domain expert, and true inter-annotator agreement could not be measured.
+A 25-ticket self-agreement check yielded an F1 of~0.78, but genuine
+disagreements between independent annotators could shift the F1 rankings among
+close competitors.  A second data limitation is that a significant portion of
+service interactions is conducted over the phone and never recorded in the
+ticket system; LLM extraction is therefore confined to the digital record and
+may miss problem context that was communicated verbally.
 
-    \item \textbf{Telephone calls not captured.}  A significant portion of
-          service interactions is conducted over the phone and is not recorded
-          in the ticket system.  LLM extraction is therefore limited to what
-          is present in the digital record and may miss important problem
-          context that was communicated verbally.
+Methodologically, the study evaluates only the zero-shot setting.  No
+fine-tuning or few-shot prompting was applied, and it is plausible that
+fine-tuned smaller models could match or exceed the larger zero-shot models at
+substantially lower inference cost.  The scope of the benchmark is also bounded:
+it covers three ticket categories and 250~tickets, so generalisation to other
+ticket types within the same system, or to service-ticket systems in different
+industrial domains, cannot be assumed without further evaluation.
 
-    \item \textbf{Zero-shot only.}  No fine-tuning or few-shot examples were
-          used in this study.  Fine-tuned smaller models could potentially
-          match or exceed the performance of the larger zero-shot models at
-          significantly lower inference cost.
-
-    \item \textbf{Benchmark scope.}  The benchmark covers three ticket
-          categories and 250~tickets.  Generalisation to other ticket types
-          in the same system, or to service ticket systems in different
-          industrial domains, is not guaranteed without further evaluation.
-
-    \item \textbf{API cost and availability.}  Proprietary API models~(GPT-4o)
-          introduce per-token costs and depend on external service availability,
-          which limits their suitability for a high-volume production
-          deployment where the Ollama-hosted models have a clear advantage.
-
-    \item \textbf{Context-window utilisation.}  Very long email threads~(20+
-          messages) may saturate even the 128k context window for the smallest
-          models.  Truncation strategies were not systematically evaluated,
-          and their impact on extraction quality is unknown.
-\end{itemize}
+Finally, two practical constraints affect deployment.  The proprietary API
+models such as GPT-4o introduce per-token costs and depend on external service
+availability, which limits their suitability for high-volume production use and
+gives the locally hosted Ollama models a clear operational advantage.  In
+addition, very long email threads of twenty or more messages may saturate even
+the 128k context window for the smallest models; truncation strategies were not
+systematically evaluated, so their effect on extraction quality remains
+unknown.

@@ -7,7 +7,7 @@
 Modern industrial companies accumulate thousands of service tickets every year.
 A single ticket at an agricultural machinery manufacturer such as Amazone~Werke
 can span dozens of email exchanges, multi-page PDF invoices, spreadsheet attachments,
-and scanned delivery notes—all in a mix of German, English, and occasionally French
+and scanned delivery notes~--~all in a mix of German, English, and occasionally French
 or Dutch. Extracting actionable information from this heterogeneous corpus manually
 is slow, inconsistent, and impossible to scale.
 
@@ -15,8 +15,8 @@ Advances in Large Language Models~(LLMs) offer a promising alternative. Models
 such as Llama~3, Gemma~3, and GPT-4o have demonstrated strong zero-shot
 capabilities in information extraction and text classification, even in specialised,
 domain-specific settings. However, applying these models to real-world industrial
-service data—with its multilingual content, verbose email threads, and
-domain-specific abbreviations—requires a principled experimental evaluation that
+service data~--~with its multilingual content, verbose email threads, and
+domain-specific abbreviations~--~requires a principled experimental evaluation that
 is largely absent from the academic literature.
 
 This thesis addresses that gap. It designs and evaluates an end-to-end pipeline that
@@ -29,33 +29,34 @@ human-annotated ground truth.
 \section{Problem Statement}
 \label{sec:problem}
 %
-Service tickets at Amazone~Werke exhibit several properties that make automated
-analysis challenging:
+Service tickets at Amazone~Werke exhibit several properties that together make
+their automated analysis challenging.  The most fundamental difficulty is that
+the content is unstructured and heterogeneous: important details are spread
+across email bodies~(MSG), PDF documents such as credit notes and inspection
+reports, Excel spreadsheets, and scanned images, and no consistent schema ties
+these sources together.  Compounding this, the text is frequently
+multilingual.  A single ticket may contain paragraphs in German and English
+interleaved with technical abbreviations drawn from both languages, so standard
+NLP tools optimised for one language fail to process the code-switched content
+reliably.
 
-\begin{itemize}
-    \item \textbf{Unstructured, heterogeneous content.} Important details are spread
-          across email bodies~(MSG), PDF documents~(credit notes, inspection reports),
-          Excel spreadsheets, and scanned images.  No consistent schema exists.
+A further complication is that the information itself is of two distinct kinds.
+Document categories~(Gutschrift, Belastungsanzeige), article codes, and machine
+serial numbers follow predictable patterns that rule-based extraction handles
+well, whereas the underlying problem, its root cause, and the eventual
+resolution require contextual reasoning that rules alone cannot provide.  Any
+effective system must therefore combine both extraction strategies rather than
+relying on a single technique.
 
-    \item \textbf{Multi-lingual text.} The same ticket may contain paragraphs in
-          German, English, and technical abbreviations from both languages.
-          Standard NLP tools optimised for a single language fail to process
-          such code-switched content reliably.
-
-    \item \textbf{Mixed structured and narrative information.} Document
-          categories~(Gutschrift, Belastungsanzeige), article codes, and machine
-          serial numbers follow predictable patterns that rule-based extraction
-          handles well.  The underlying problem, root cause, and resolution require
-          contextual reasoning that rules cannot provide.
-
-    \item \textbf{Volume and scalability.} The corpus comprises tens of thousands
-          of tickets.  Manual analysis is not feasible; any automated system must
-          process tickets with minimal human intervention.
-
-    \item \textbf{Incomplete written records.} Many ticket resolutions are agreed
-          upon in phone calls or meetings, leaving the written record incomplete.
-          Models must reason under uncertainty without hallucinating solutions.
-\end{itemize}
+Two practical constraints frame the task.  First, the corpus comprises tens of
+thousands of tickets, which makes manual analysis infeasible and demands a
+system that operates with minimal human intervention.  Second, the written
+record is often incomplete: many ticket resolutions are agreed upon in phone
+calls or meetings and never fully documented, so a model must reason under
+uncertainty without fabricating solutions that the source text does not
+support.  The central challenge of this thesis is to extract useful insights
+from this material without losing the context that gives those insights
+meaning.
 
 %----------------------------------------------------------------------
 \section{Research Questions}

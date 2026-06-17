@@ -53,17 +53,6 @@ the 250~benchmark tickets.
     \end{tabular}
 \end{table}
 
-Figure~\ref{fig:f1-table-screenshot} shows the complete metric comparison as
-produced by the evaluation pipeline.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/f1_human_tag_results.png}
-    \caption{Metric comparison of all models vs human tags baseline.
-             Models are sorted by descending F1 score.}
-    \label{fig:f1-table-screenshot}
-\end{figure}
-
 The results reveal several noteworthy patterns.  First, proprietary models
 (GPT-5.4-mini, GPT-5.5, GPT-4o-mini) occupy the top three positions,
 followed by the open-source GPTOSS model at rank~4 with an F1 of~0.3562.
@@ -130,13 +119,6 @@ count per ticket.
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/llm_tagging_profiles.png}
-    \caption{LLM tagging profiles as produced by the evaluation pipeline.}
-    \label{fig:tagging-profiles}
-\end{figure}
-
 All models converge on approximately eight tags per ticket, suggesting that
 the prompt design effectively constrains tag count.  However, the number of
 \textit{unique} tags varies dramatically: \texttt{qwen2.5} produces only~29
@@ -175,15 +157,6 @@ the fraction of ground-truth items the model correctly identifies.
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/item_extraction_baseline.png}
-    \caption{Item extraction ranking with GPT-5.5 as judge.  The
-             \textsc{Item Extraction} row represents the human annotator's
-             performance relative to GPT-5.5.}
-    \label{fig:item-extraction}
-\end{figure}
-
 Notably, three LLM models (GPT-5.4~MINI, GPT-4o~MINI, GPTOSS) outperform
 the human annotator at item extraction.  This suggests that LLMs can surface
 structured references (machine serials, article codes) that human annotators
@@ -193,34 +166,41 @@ overlook when manually scanning long email threads.
 \label{subsec:judge-composite}
 %
 In a second judge evaluation, GPT-5.5 was given 28~base tags and asked to
-(a)~rate the Problem/Solution quality of each model on a 0--10~scale,
-(b)~assess the usefulness of the model's tags as a percentage, and
-(c)~compute a composite score normalised to 0--100.
+rate the Problem/Solution quality of each model on a 0--10~scale and to assess
+the usefulness of the model's tags as a percentage.  The four open-source
+models were then ranked on each metric, and a \emph{composite} score was
+derived from these ranks and rescaled so that the best-performing model
+maps to~100 and the worst to the lowest value.  The composite is therefore a
+\emph{relative} ranking score among the four candidates, not an absolute
+measure of correctness: a composite of~100 means a model ranked first overall,
+not that it achieved perfect output.
 
 \begin{table}[H]
     \centering
-    \caption{GPT-5.5 judge results: P/S quality, tag usefulness, and composite
-             score. 665~extended tags were evaluated.}
+    \caption{GPT-5.5 judge results for the four open-source candidate models:
+             P/S quality, tag usefulness, and the relative composite ranking
+             score. 665~extended tags were evaluated. Per-metric ranks are
+             shown in parentheses.}
     \label{tab:judge-results}
     \begin{tabular}{clccc}
         \hline
-        \textbf{Rank} & \textbf{Model} & \textbf{P/S Quality} & \textbf{Usefulness} & \textbf{Composite} \\
+        \textbf{Rank} & \textbf{Model} & \textbf{P/S Quality} & \textbf{Usefulness} & \textbf{Composite (rel.)} \\
         \hline
-        1st & GPTOSS      & 6.09/10 (R1) & 65.6\% (R1) & 100.0/100 \\
-        2nd & GEMMA4       & 4.54/10 (R3) & 39.6\% (R2) &  62.5/100 \\
-        3rd & QWEN3\_14B   & 5.27/10 (R2) & 29.2\% (R4) &  50.0/100 \\
-        4th & LLAMA3.1     & 4.09/10 (R4) & 37.2\% (R3) &  37.5/100 \\
+        1st & GPTOSS      & 6.09/10 (R1) & 65.6\% (R1) & 100.0 \\
+        2nd & GEMMA4       & 4.54/10 (R3) & 39.6\% (R2) &  62.5 \\
+        3rd & QWEN3\_14B   & 5.27/10 (R2) & 29.2\% (R4) &  50.0 \\
+        4th & LLAMA3.1     & 4.09/10 (R4) & 37.2\% (R3) &  37.5 \\
         \hline
     \end{tabular}
 \end{table}
 
-Among the open-source models evaluated by the judge, GPTOSS achieves
-first place across all three metrics with a perfect composite score
-of~100/100.  The gap between GPTOSS and the runner-up GEMMA4 is
-substantial (37.5~composite points), primarily driven by the large
-usefulness margin (65.6\% vs 39.6\%).  Notably, QWEN3\_14B ranks second
-in P/S quality (5.27) but only fourth in usefulness (29.2\%), indicating
-that it produces well-reasoned but less practically relevant tags.
+Among the four open-source models evaluated by the judge, GPTOSS ranks first on
+both the Problem/Solution quality~(6.09/10) and the usefulness~(65.6\,\%)
+metric, giving it the top relative composite score.  Its lead is driven mainly
+by the large usefulness margin over the runner-up GEMMA4~(65.6\,\% versus
+39.6\,\%).  Notably, QWEN3\_14B ranks second on P/S quality~(5.27) but only
+fourth on usefulness~(29.2\,\%), indicating that it produces well-reasoned but
+less practically relevant tags.
 
 %----------------------------------------------------------------------
 \section{Semantic Similarity Analysis}
@@ -284,14 +264,6 @@ blind tag generation task.
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/semantic_similarity.png}
-    \caption{Semantic similarity scores for Problem/Solution and Blind Tag
-             tasks across four embedding models.}
-    \label{fig:semantic-similarity}
-\end{figure}
-
 \subsection{Combined Semantic Average}
 %
 Table~\ref{tab:combined-avg} aggregates the P/S and Blind Tag ensemble
@@ -316,13 +288,6 @@ averages into a single combined score.
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/combined_average.png}
-    \caption{Combined average semantic similarity for P/S and Blind Tags.}
-    \label{fig:combined-avg}
-\end{figure}
-
 The semantic similarity analysis reveals a consistent ranking: proprietary
 models lead, followed by \texttt{gptoss} and \texttt{llama3.1} as the
 strongest open-source contenders.  The Problem/Solution task consistently
@@ -336,16 +301,13 @@ easier for LLMs than generating appropriate categorical tags.
 %
 Based on the intermediate results from all three evaluation protocols, two
 models were selected for the final comparison: \texttt{gpt-oss} and
-\texttt{gemma4}.  The selection criteria were:
-
-\begin{itemize}
-    \item \textbf{GPTOSS}: Ranked 1st in the LLM-as-judge composite
-          (100/100), 4th in F1 (0.3562), and 5th in combined semantic
-          similarity (0.511).  Strongest overall balance.
-    \item \textbf{GEMMA4}: Ranked 2nd in the judge composite (62.5/100),
-          5th in F1 (0.3122), and 7th in semantic similarity (0.487).
-          Highest recall among open-source models (0.4951).
-\end{itemize}
+\texttt{gemma4}.  GPTOSS was chosen because it offers the strongest overall
+balance across the protocols: it ranked first in the LLM-as-judge relative
+composite, fourth in F1~(0.3562), and fifth in combined semantic
+similarity~(0.511).  GEMMA4 was chosen as a contrasting recall-oriented
+candidate; although it ranked only fifth in F1~(0.3122) and seventh in semantic
+similarity~(0.487), it placed second in the judge composite and achieved the
+highest recall among all open-source models~(0.4951).
 
 Among the Ollama-served models, GPTOSS consistently leads the judge rankings
 while GEMMA4 excels at recall-oriented tasks.  These two models are carried
@@ -410,24 +372,21 @@ values below~0.26.
 
 \subsection{Category-level Observations}
 %
-\begin{itemize}
-    \item \textbf{GS (Gutschrift)}: The most frequent category; models
-          generally perform best here due to the larger training signal in
-          the pre-training corpora for invoice/credit-note language.
-
-    \item \textbf{BL (Belastungsanzeige)}: Intermediate difficulty; the
-          charge-notification genre is less common in open-web training data.
-          Models often struggled with the distinction between a
-          requested charge and a confirmed charge, leading to lower precision.
-
-    \item \textbf{LB (Lagerbelastung)}: The most challenging category;
-          tickets often contain technical codes and sparse narrative text,
-          leaving little signal for the LLM to reason from.  This
-          category had the highest under-tagging rate, as models failed to
-          identify latent service actions from article numbers alone.
-\end{itemize}
+Performance varied markedly across the three ticket categories.  The
+Gutschrift~(GS) category, which is also the most frequent, was handled best by
+all models, most likely because invoice and credit-note language is well
+represented in the pre-training corpora.  The Belastungsanzeige~(BL) category
+proved of intermediate difficulty: the charge-notification genre is less common
+in open-web training data, and models frequently struggled to distinguish a
+requested charge from a confirmed one, which lowered precision.  The
+Lagerbelastung~(LB) category was the most challenging of the three.  These
+warehouse-charge tickets often consist of technical codes with very little
+narrative text, leaving the model little signal to reason from, and they
+consequently exhibited the highest under-tagging rate as models failed to
+infer latent service actions from article numbers alone.
 
 \subsection{Language-specific Errors and Normalisation}
+\label{sec:results-language}
 %
 Although all models are instructed to produce English output, smaller models
 occasionally respond in German when the input is entirely in German.  This

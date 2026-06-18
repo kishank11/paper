@@ -40,8 +40,8 @@ human annotations at an F1 level of up to 0.39 for zero-shot tagging.
 While fully replacing human annotation remains a challenge, the models
 provide significant value in automated triage and insight synthesis.
 
-\paragraph{RQ\,1.1: Which types of information can be reliably extracted
-via rule-based patterns versus LLM inference?}
+\paragraph{RQ\,1.1: Which ticket information can be captured reliably with
+rule-based extraction, and which parts need LLMs?}
 The hybrid pipeline approach is strongly validated. Structured, pattern-conformant
 information~(machine serials, article numbers, RMA codes) is extracted with
 near-perfect F1 scores~(>0.95) using regular expressions. In contrast,
@@ -49,8 +49,8 @@ narrative content such as problem summaries and semantic tags requires LLM
 reasoning, where model-based extraction significantly outperforms any
 potential rule-based approach.
 
-\paragraph{RQ\,1.2: Which LLM configuration produces the most useful and
-coherent insights in this industrial context?}
+\paragraph{RQ\,1.2: Which model produces the most useful and coherent insights
+on the benchmark tickets?}
 The answer depends on whether proprietary models are permitted.  Across the
 fifteen configurations, the proprietary \texttt{gpt-5.4-mini} achieved the
 highest token-level F1~(0.394) against the human tags.  Among the locally

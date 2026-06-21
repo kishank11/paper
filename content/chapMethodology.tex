@@ -517,6 +517,16 @@ proprietary models accessed via the OpenAI API.
     \end{tabular}
 \end{table}
 
+Throughout this thesis, models are referred to by their Ollama identifier in
+typewriter font, which combines the model family, its version, and its
+parameter size, for example \texttt{gemma4:latest} or \texttt{deepseek-r1:14b}.
+Where the parameter size is given separately, it appears in parentheses, as in
+\texttt{gemma3 (12b)}.  It is important to note that the family version and the
+parameter size are independent: \texttt{gemma4} and \texttt{gemma3 (12b)} are
+two distinct model releases, not the same model written two ways.  This naming
+convention is used consistently so that every result can be traced back to the
+exact model that produced it.
+
 \subsection{Prompt Design}
 \label{sec:prompt-design}
 %

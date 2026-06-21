@@ -111,8 +111,10 @@ structured, step-by-step prompt design used in this thesis
 (see Section~\ref{sec:prompt-design}).
 
 Domain-aware prompts consistently outperform generic prompts.
-\citeauthor{ma2023large}~\cite{ma2023large} showed this for biomedical named entity
-recognition, and similar results have been reported in legal document analysis.
+\citeauthor{keloth2024advancing}~\cite{keloth2024advancing} showed for biomedical
+named entity recognition that instruction-tuned LLMs adapted to domain vocabulary
+substantially improve extraction quality, and similar results have been reported
+in legal document analysis.
 Accordingly, the prompts in this thesis embed Amazone-specific domain vocabulary and
 define a fixed output schema.
 
@@ -134,7 +136,7 @@ typically casting the task as classification, prioritisation, or escalation.
 \citeauthor{tolciu2021analysis}~\cite{tolciu2021analysis} analyse patterns and
 similarities in service tickets using classical NLP techniques such as
 bag-of-words and TF-IDF.  \citeauthor{liu2023ticketbert}~\cite{liu2023ticketbert}
-introduce \textsc{Ticket-BERT}, fine-tuning a BERT-style model to label incident
+introduces \textsc{Ticket-BERT}, fine-tuning a BERT-style model to label incident
 management tickets, and \citeauthor{boonklay2025comparative}~%
 \cite{boonklay2025comparative} provide a comparative study of machine learning
 and deep learning algorithms for customer support ticket classification across
@@ -169,11 +171,15 @@ problem-transformation methods~(e.g.\ binary relevance, label powerset) from
 algorithm-adaptation methods.
 
 Transformer models reformulate multi-label classification as sequence generation,
-outputting a comma-separated list of labels or a JSON array.  The blind-tag
-evaluation protocol used in this thesis follows the approach of
-\citeauthor{yang2023llm4label}~\cite{yang2023llm4label}, who found that
-LLMs outperform fine-tuned classifiers when the label set is large and the
-training data is scarce, precisely the setting of this thesis.
+outputting a comma-separated list of labels or a JSON array.  This generative
+framing is increasingly applied to industrial data: \citeauthor{llm4industrial2024}~%
+\cite{llm4industrial2024} use LLMs for multi-label classification of industrial
+requirements and observe that parameter count alone does not determine
+performance, with smaller well-tuned models competing with much larger ones.
+The blind-tag evaluation protocol used in this thesis follows the same
+generative multi-label paradigm, which is well suited to settings where the
+label set is large and labelled training data is scarce, precisely the setting
+of this thesis.
 
 An important distinction is between \emph{accuracy-oriented} evaluation~(strict
 match against a fixed ground truth) and \emph{usefulness-oriented} evaluation.
@@ -193,9 +199,9 @@ trained predominantly on English data.
 Multilingual models such as mBERT~\cite{devlin2019bert} and
 XLM-R~\cite{conneau2020unsupervised} handle code-switching with varying success
 depending on the language pair and domain.  Among the LLMs evaluated in this
-thesis, instruction-tuned models with multilingual training data~(Gemma~3,
-Qwen~2.5) generally outperform English-centric models on German passages
-(see Section~\ref{sec:results-language}).
+thesis, instruction-tuned models with multilingual training data~(the Gemma
+and Qwen families) generally outperform English-centric models on German
+passages.
 
 %----------------------------------------------------------------------
 \section{LLM Evaluation and the LLM-as-Judge Framework}
@@ -230,12 +236,12 @@ prior work.
         \hline
         Yang~et~al.~\cite{yang1999reevaluation}   & No  & No  & No  & Yes & Yes \\
         Hassan~et~al.~\cite{hassan2023llm}         & Yes & Yes & No  & No  & No  \\
-        Yang~et~al.~\cite{yang2023llm4label}       & Yes & No  & No  & Yes & Yes \\
+        Industrial ML~\cite{llm4industrial2024}        & Yes & Yes & No  & Yes & No  \\
         \textbf{This thesis}                        & Yes & Yes & Yes & Yes & Yes \\
         \hline
     \end{tabular}
 \end{table}
 
-The combination of an industrial, multi-lingual setting with multi-label
+The combination of an industrial, multilingual setting with multi-label
 classification and a human-annotated benchmark represents a contribution not
 addressed by any single prior work.

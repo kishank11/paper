@@ -21,8 +21,8 @@ the research gap~(Section~\ref{sec:rw-gap}).
 Large language models have rapidly moved beyond text generation into a wide
 range of analytical and operational tasks.  One particularly active area is
 \emph{root cause analysis}~(RCA), where the goal is to diagnose the underlying
-reason for a system failure or incident from heterogeneous textual evidence~--
-a task structurally similar to diagnosing the root problem of a service
+reason for a system failure or incident from heterogeneous textual evidence.
+This is structurally similar to diagnosing the root problem of a service
 ticket.  \citeauthor{chen2024automatic}~\cite{chen2024automatic} applied LLMs
 to cloud incident reports with their \textsc{RCACopilot} system, which uses
 predefined handlers to automatically collect multi-modal diagnostic data and
@@ -50,6 +50,62 @@ coherent problem and solution from a messy thread is closely analogous to RCA.
 The RCA findings on the value of explicit reasoning and the diminishing returns
 of additional context directly informed the prompt design choices made in
 Chapter~\ref{chap:Methodology}.
+
+\subsection{Reasoning Failures and Domain Adaptation in RCA}
+\label{subsec:rw-rca-failures}
+%
+A more recent line of work moves beyond demonstrating that LLMs \emph{can}
+perform RCA and instead asks \emph{why} they fail, which is directly relevant
+to interpreting the error patterns observed in this thesis.
+\citeauthor{kim2026why}~\cite{kim2026why} run a controlled study of LLM-based
+cloud RCA and distil a taxonomy of twelve recurring pitfall types.  Their
+central conclusion is sobering for prompt-only approaches: prompt engineering
+alone does not resolve the dominant reasoning failures, and improvements in how
+agents communicate with one another help more than refinements to a single
+prompt.  In a similar spirit, \citeauthor{riddell2026stalled}~%
+\cite{riddell2026stalled} build a taxonomy of reasoning failures for
+cloud-based RCA, compare ReAct against Plan-and-Execute workflows across six
+models, and show that the type of reasoning failure is itself predictive of
+whether the final answer is correct.  Together these studies suggest that the
+over-tagging and under-tagging patterns reported in Chapter~\ref{chap:Results}
+are better understood as reasoning failures than as simple labelling noise.
+
+Domain adaptation emerges as the most reliable remedy.
+\citeauthor{sana2025reasoning}~\cite{sana2025reasoning} benchmark RCA in 5G
+wireless networks and find that open-source reasoning models struggle without
+domain-specific adaptation; a two-stage fine-tuning approach combining
+supervised learning with reinforcement learning markedly improves both accuracy
+and the quality of the reasoning.  \citeauthor{tan2026llmrca}~%
+\cite{tan2026llmrca} take a complementary, retrieval-augmented route with their
+multilevel \textsc{LLMRCA} framework, which fuses multimodal observability data
+into a heterogeneous causal graph and outperforms eight baselines on
+response-quality problems.  The recurring lesson, that generic prompting is not
+enough and that domain grounding is decisive, reinforces the design decision in
+this thesis to embed Amazone-specific vocabulary and an expert-validated tag
+taxonomy directly into the pipeline rather than relying on a general-purpose
+prompt.
+
+\subsection{From Correlation to Causation: Prompting for Causal Reasoning}
+\label{subsec:rw-causal}
+%
+Underlying all RCA is the more fundamental question of whether LLMs can reason
+causally at all rather than merely echoing surface correlations.  Two studies
+are particularly relevant.  \citeauthor{sgouritsa2024prompting}~%
+\cite{sgouritsa2024prompting} introduce \textsc{PC-SubQ}, a prompting strategy
+that decomposes causal inference into a fixed sequence of sub-questions aligned
+with a classical causal-discovery algorithm; across five LLMs it improves on
+baseline prompting and, importantly, stays robust when variable names are
+changed or the question is paraphrased.  \citeauthor{liu2025eliciting}~%
+\cite{liu2025eliciting} approach the problem from a different angle and find
+that code-style prompts and code-trained LLMs reason about cause and effect
+more reliably than text-only prompting, and that fine-tuning on conditional
+(if-then) statements improves causal reasoning in both code and natural
+language.  These findings matter for the present work because assigning a
+service tag is implicitly a causal judgement: the model must infer, from a
+description of symptoms, the underlying fault that caused them.  The evidence
+that structured, decomposed prompts improve causal inference supports the
+explicit two-call protocol adopted here, in which problem and solution are
+extracted before tags are assigned.
 
 %----------------------------------------------------------------------
 \section{Structuring Unstructured Data with LLMs}

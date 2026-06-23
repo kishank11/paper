@@ -351,6 +351,81 @@ This rule-based layer addresses RQ\,1.1 directly: structured, pattern-conformant
 information is captured without an LLM.  The LLM is reserved for extracting
 the problem statement, solution, and semantic tags from the narrative text.
 
+\subsection{Item Extraction}
+\label{subsec:item-extraction}
+%
+Applying the rule-based layer to the full corpus produces a structured record of
+the items mentioned in each document.  Three kinds of identifier are of
+particular interest: the article numbers (Artikel-Nr.), the customer's own part
+number (Ihre Teilenummer), and the change numbers (Anderungsnummer, prefixed
+with \texttt{CN}).  Because the three document categories follow different
+layouts, these identifiers are stored in slightly different fields per category:
+the Gutschrift and Lagerbelastung documents expose a single list of article
+numbers, whereas the Belastungsanzeige documents separate the internal part
+number from the customer's own part number.
+
+Table~\ref{tab:item-extraction} summarises the volume of extracted identifiers.
+The Gutschrift category dominates the article counts, with a single article
+number (\texttt{0520700}) appearing more than 88{,}000 times, which reflects a
+small number of very high-volume spare parts.  The change numbers are far less
+frequent but are operationally important, since they link a ticket to a specific
+engineering change.
+
+\begin{table}[H]
+    \centering
+    \caption[Volume of extracted items per category]{Volume of extracted items per category. Article numbers, customer part numbers, and change numbers (CN) after applying the length and pattern filters.}
+    \label{tab:item-extraction}
+    \begin{tabular}{lrrrr}
+        \hline
+        \textbf{Category} & \textbf{Articles} & \textbf{Unique} & \textbf{CN total} & \textbf{CN unique} \\
+        \hline
+        Gutschrift        & 327{,}763 & 18{,}101 & 1{,}775 & 623 \\
+        Belastungsanzeige &   4{,}868 &  1{,}537 & 3{,}288 & 934 \\
+        Lagerbelastung    &   1{,}960 &  1{,}417 &       0 &   0 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Figure~\ref{fig:item-articles} shows the twenty most frequent article numbers in
+each category.  The distribution is highly skewed for Gutschrift, where a few
+standard parts account for the bulk of all occurrences, and much flatter for
+Lagerbelastung, where no single part dominates.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_top_article_numbers.png}
+    \caption[Top article numbers per category]{Top twenty article and item numbers per category, after filtering out change numbers and short tokens.}
+    \label{fig:item-articles}
+\end{figure}
+
+For the Belastungsanzeige category, the customer's own part number is recorded in
+a dedicated field.  Figure~\ref{fig:item-ihre} shows the most frequent values,
+which are useful for tracing recurring customer-side components.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig_ihre_teilenummer.png}
+    \caption[Top customer part numbers]{Top twenty customer part numbers (Ihre Teilenummer) in the Belastungsanzeige category.}
+    \label{fig:item-ihre}
+\end{figure}
+
+The change numbers are extracted separately and, as
+Figure~\ref{fig:item-cn} shows, the sets found in the Gutschrift and
+Belastungsanzeige categories are almost entirely disjoint: of the several
+hundred unique change numbers in each category, only a single number appears in
+both.  They are therefore presented as two separate distributions rather than a
+combined one.  It is worth noting that in the Gutschrift documents the change
+numbers were not isolated in a dedicated field but had to be recovered from the
+surrounding text, which is a limitation of the original extraction and a
+candidate for future refinement.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_anderungsnummer.png}
+    \caption[Change number occurrences per category]{Top twenty change numbers (Anderungsnummer, CN) for the Gutschrift and Belastungsanzeige categories, shown separately because the two sets are disjoint.}
+    \label{fig:item-cn}
+\end{figure}
+
 %----------------------------------------------------------------------
 \section{Benchmark Dataset and Validation}
 \label{sec:benchmark}

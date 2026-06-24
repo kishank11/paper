@@ -22,16 +22,18 @@ The thesis follows a three-phase methodology:
           narrative text is retained for LLM processing.
 
     \item \textbf{Benchmark construction.}  A representative sample of
-          250~tickets is drawn from three ticket categories and annotated with
-          ground-truth tags by a human expert.  Two versions of each ticket
-          (with and without the ground-truth tags visible to the annotator)
-          yield a \emph{ground-truth~set}~(GS) and a \emph{blind-label~set}~(BL/LB).
+          250~tickets is drawn so that it reflects the diversity of the full
+          archive.  Tickets are selected to vary along three dimensions: the
+          complexity of the ticket, approximated by the number of MSG email
+          files it contains; the language of the content; and the year of
+          origin, spanning 2016 to 2025.  Each selected ticket is then annotated
+          with ground-truth tags by a human expert.
 
     \item \textbf{LLM evaluation.}  Fifteen model configurations are run on each
-          benchmark ticket using a two-call protocol: one call for
-          Problem/Solution/Entity extraction and one for blind tag generation.
-          Results are scored against the human annotations using F1 and via
-          an LLM-as-judge rubric.
+          benchmark ticket and asked to generate tags for the ticket.  The
+          generated tags are scored against the human annotations using the F1
+          score, and the quality and usefulness of the tags are additionally
+          assessed with an LLM-as-judge rubric.
 \end{enumerate}
 
 %----------------------------------------------------------------------
@@ -459,20 +461,24 @@ dealer network.
 
 \begin{table}[H]
     \centering
-    \caption{Language distribution in the 250-ticket benchmark.}
+    \caption{Language distribution across the source files in the 250-ticket benchmark.}
     \label{tab:language-dist}
     \begin{tabular}{lrr}
         \hline
-        \textbf{Language} & \textbf{Percent} & \textbf{Count} \\
+        \textbf{Language} & \textbf{Percent} & \textbf{Files} \\
         \hline
         German   & 82.8\% & 538 \\
         English  & 15.7\% & 102 \\
-        Russian  &  1.1\% &   7 \\
-        Spanish  &  0.3\% &   2 \\
-        Estonian &  0.2\% &   1 \\
+        Other (Russian, Spanish, Estonian) & 1.6\% & 10 \\
         \hline
     \end{tabular}
 \end{table}
+
+\noindent
+The counts in Table~\ref{tab:language-dist} refer to individual source files,
+not tickets: a single ticket bundles several files, so the file counts exceed
+the 250 tickets.  German and English together account for the overwhelming
+majority, with a small remainder spread across a few other languages.
 
 Figure~\ref{fig:benchmark-filetypes} shows the distribution of source file
 types in the benchmark.  MSG email files dominate overwhelmingly (622~out of

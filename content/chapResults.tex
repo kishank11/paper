@@ -64,7 +64,7 @@ over-tagging.  Third, \texttt{qwen3\_14b} achieves the highest
 accuracy~(0.9412) but at the cost of low recall~(0.2539), suggesting a
 conservative tagging strategy.
 
-\subsection{Performance of Rule-based Extraction (RQ\,1.1)}
+\subsection{Performance of Rule-based Extraction}
 \label{subsec:regex-res}
 %
 Table~\ref{tab:regex-results} shows the performance of the regular expression
@@ -140,7 +140,7 @@ Section~\ref{sec:disc-tags}.
 \section{LLM-as-Judge Evaluation}
 \label{sec:res-judge}
 %
-\subsection{Item Extraction Baseline (GPT-5.5 as Judge)}
+\subsection{Item Extraction Baseline}
 \label{subsec:item-extraction}
 %
 As a complementary evaluation, GPT-5.5 was used as a judge to assess how
@@ -172,7 +172,7 @@ the human annotator at item extraction.  This suggests that LLMs can surface
 structured references (machine serials, article codes) that human annotators
 overlook when manually scanning long email threads.
 
-\subsection{Tag Usefulness and Reasoning Quality (GPT-5.5 as Judge)}
+\subsection{Tag Usefulness and Reasoning Quality}
 \label{subsec:judge-composite}
 %
 In a second judge evaluation, GPT-5.5 was given 28~base tags and asked to
@@ -305,7 +305,7 @@ generating appropriate categorical tags, which require mapping free text onto
 a fixed taxonomy.
 
 %----------------------------------------------------------------------
-\section{Open-Source Model Comparison (RQ\,1.2)}
+\section{Open-Source Model Comparison}
 \label{sec:res-oss}
 %
 Based on the intermediate results from all three evaluation protocols, two
@@ -420,9 +420,9 @@ output, the smaller models occasionally respond in German when the input is
 entirely in German.  German compound words such as \textit{Lagerbelastung} are
 then reproduced verbatim instead of being mapped to the approved English tag,
 which lowers precision.  Given the benchmark language
-distribution~(82.8\,\% German, 15.7\,\% English, 1.1\,\% Russian, 0.3\,\%
-Spanish, 0.2\,\% Estonian), the large German majority makes this
-code-switching problem common.
+distribution~(82.8\,\% German, 15.7\,\% English, and a small remainder spread
+across a few other languages such as Russian, Spanish, and Estonian), the large
+German majority makes this code-switching problem common.
 
 The second is grammatical number: a model might emit \texttt{missing\_part} in
 one ticket and \texttt{missing\_parts} in another, so singular and plural forms

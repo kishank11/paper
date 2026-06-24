@@ -123,39 +123,44 @@ from~2022 onwards should be treated as representative.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/gutschrift_money_spent.png}
-    \caption[Total Gutschrift credit note value per year]{Total Gutschrift credit note value per year in EUR (2016 to 2025).}
+    \caption[Total Gutschrift credit note value per year]{Total Gutschrift credit note value per year in EUR (2016 to 2025). The monetary values shown were extracted automatically with regular expressions and have not been independently verified.}
     \label{fig:gs-money}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/belastungsanzeige_cost_per_year.png}
-    \caption[Total Belastungsanzeige cost per year]{Total Belastungsanzeige cost per year in 1000~EUR (2016 to 2025).}
+    \caption[Total Belastungsanzeige cost per year]{Total Belastungsanzeige cost per year in 1000~EUR (2016 to 2025). The monetary values shown were extracted automatically with regular expressions and have not been independently verified.}
     \label{fig:bl-cost}
 \end{figure}
 
 \subsection{File Conversion to Markdown}
 %
 All attachment types are converted to plain Markdown to create a uniform
-input format for the LLM.  The conversion strategy is:
+input format for the LLM.  The conversion is performed by a custom pipeline
+built for this thesis, which calls a dedicated library for each file type and
+then post-processes the result.  The conversion strategy is:
 
 \begin{itemize}
-    \item \textbf{MSG~(email) files:} Headers~(From, To, Subject, Date)
-          are extracted and appended as a structured preamble; the email body
+    \item MSG~(email) files: headers~(From, To, Subject, Date)
+          are extracted and appended as a structured preamble, and the email body
           is normalised to plain text.  Nested reply chains are concatenated
-          in chronological order (oldest first). \textbf{A specific filter is
-          applied to remove quoted text in deep threads to minimize token
-          redundancy.}
+          in chronological order (oldest first).  A custom filter in the
+          pipeline removes quoted text in deep threads to reduce token
+          redundancy; this filtering is part of the pipeline and is not done by
+          any external conversion tool.
 
-    \item \textbf{PDF files:} Text is extracted using \textbf{PyMuPDF4LLM}, which
+    \item PDF files: text is extracted using PyMuPDF4LLM, which
           preserves table structure and avoids common layout artefacts.
-          Pages are separated by horizontal rules. \textbf{For scanned
-          documents, an OCR-fallback layer using Tesseract is implemented.}
+          Pages are separated by horizontal rules.  For scanned documents that
+          contain no machine-readable text, the pipeline falls back to optical
+          character recognition with Tesseract; this fallback is invoked by the
+          pipeline itself, not by PyMuPDF4LLM.
 \end{itemize}
 
 \subsubsection{PDF Extraction Tool Selection}
 %
-The initial extraction attempts used \textbf{MarkItDown}~\cite{markitdown2024},
+The initial extraction attempts used MarkItDown~\cite{markitdown2024},
 a general-purpose file-to-Markdown converter.  However, MarkItDown failed to
 extract the ticket content in a correctly structured manner.  As shown in
 Figure~\ref{fig:markitdown-drawback}, the converter linearises the document
@@ -163,18 +168,19 @@ into a flat sequence of fragments: column headers~(\texttt{POS},
 \texttt{NO.\,D'ARTICLE}, \texttt{QUANT.}) are separated from their
 corresponding values, and the tabular relationship between an article number,
 its description, and its price is lost entirely.  Compared to the original PDF
-layout~(shown on the right of the same figure), the extracted text is no longer
+layout, the extracted text is no longer
 machine-interpretable as a structured invoice, which makes downstream entity
 extraction unreliable.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.48\textwidth]{figures/markitdown_drawback_output.png}
-    \hfill
-    \includegraphics[width=0.48\textwidth]{figures/markitdown_drawback_original.png}
-    \caption{Drawback of MarkItDown.  Left: the unstructured, linearised
+    \includegraphics[width=0.82\textwidth]{figures/markitdown_drawback_output.png}\\[1ex]
+    \includegraphics[width=0.82\textwidth]{figures/markitdown_drawback_original.png}
+    \caption{Drawback of MarkItDown (example).  Top: the unstructured, linearised
              output, where table columns are detached from their values.
-             Right: the original PDF layout that should have been preserved.}
+             Bottom: the original PDF layout that should have been preserved.
+             These images are illustrative examples taken from one sample
+             document.}
     \label{fig:markitdown-drawback}
 \end{figure}
 

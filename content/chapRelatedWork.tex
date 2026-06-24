@@ -283,21 +283,32 @@ prior work.
 
 \begin{table}[H]
     \centering
-    \caption{Positioning of this thesis in the related-work landscape.}
+    \small
+    \caption{Positioning of this thesis relative to the main strands of prior work.}
     \label{tab:rw-gap}
     \begin{tabular}{lccccc}
         \hline
         \textbf{Work} & \textbf{LLM} & \textbf{Industrial} & \textbf{Multilingual}
                       & \textbf{Multi-label} & \textbf{Benchmark} \\
         \hline
-        Yang~et~al.~\cite{yang1999reevaluation}   & No  & No  & No  & Yes & Yes \\
-        Hassan~et~al.~\cite{hassan2023llm}         & Yes & Yes & No  & No  & No  \\
-        Industrial ML~\cite{llm4industrial2024}        & Yes & Yes & No  & Yes & No  \\
-        \textbf{This thesis}                        & Yes & Yes & Yes & Yes & Yes \\
+        Chen~et~al.~\cite{chen2024automatic}      & Yes & Yes & No  & No  & Yes \\
+        Roy~et~al.~\cite{roy2024exploring}        & Yes & Yes & No  & No  & Yes \\
+        Kim~et~al.~\cite{kim2026why}              & Yes & Yes & No  & No  & Yes \\
+        Sana~et~al.~\cite{sana2025reasoning}      & Yes & Yes & No  & No  & Yes \\
+        Keloth~et~al.~\cite{keloth2024advancing}  & Yes & No  & No  & No  & Yes \\
+        Sui~et~al.~\cite{sui2024table}            & Yes & No  & No  & No  & Yes \\
+        Liu~\cite{liu2023ticketbert}              & No  & Yes & No  & Yes & Yes \\
+        Tolciu~et~al.~\cite{tolciu2021analysis}   & No  & Yes & No  & Yes & No  \\
+        Industrial ML~\cite{llm4industrial2024}   & Yes & Yes & No  & Yes & No  \\
+        Sgouritsa~et~al.~\cite{sgouritsa2024prompting} & Yes & No & No & No & Yes \\
+        \textbf{This thesis}                      & Yes & Yes & Yes & Yes & Yes \\
         \hline
     \end{tabular}
 \end{table}
 
-The combination of an industrial, multilingual setting with multi-label
-classification and a human-annotated benchmark represents a contribution not
-addressed by any single prior work.
+\noindent
+The columns indicate whether each work uses LLMs, targets an industrial setting,
+handles multilingual input, performs multi-label classification, and evaluates
+on a dedicated benchmark.  The combination of an industrial, multilingual
+setting with multi-label classification and a human-annotated benchmark
+represents a contribution not addressed by any single prior work.

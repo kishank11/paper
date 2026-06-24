@@ -70,29 +70,39 @@ conservative tagging strategy.
 \subsection{Performance of Rule-based Extraction}
 \label{subsec:regex-res}
 %
-Table~\ref{tab:regex-results} shows the performance of the regular expression
-patterns described in Section~\ref{subsec:regex} for structured field
-extraction.
+The accuracy of the rule-based layer was checked manually on a sample of
+25~tickets drawn from the Belastungsanzeige category, comparing the extracted
+fields against the original documents.  Table~\ref{tab:regex-results} reports the
+result for the two identifier types that this category contains.
 
 \begin{table}[H]
     \centering
-    \caption{Performance of regex patterns for structured extraction.}
+    \caption{Accuracy of rule-based extraction, checked on 25 Belastungsanzeige tickets.}
     \label{tab:regex-results}
     \begin{tabular}{lccc}
         \hline
         \textbf{Field Type} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
         \hline
-        Machine Serial Number & 0.992 & 0.975 & 0.983 \\
-        Article Number        & 0.964 & 0.941 & 0.952 \\
-        RMA Number            & 0.981 & 0.924 & 0.951 \\
-        Document Category     & 0.978 & 0.962 & 0.970 \\
+        Article Number        & 0.96 & 0.92 & 0.94 \\
+        Document Category     & 1.00 & 1.00 & 1.00 \\
         \hline
     \end{tabular}
 \end{table}
 
-The near-perfect precision for structured fields confirms that LLM inference
-is not required for these elements, allowing the LLM budget to be spent
-entirely on narrative reasoning.
+Two observations qualify these numbers.  First, the machine serial number could
+not be evaluated as a field, because in most of the 25~checked tickets the
+machine number was simply not present in the PDF; where it was absent it was
+marked as unknown rather than counted as a missed extraction.  Second, the
+article numbers were extracted correctly, but for the article-frequency graphs
+in Section~\ref{subsec:item-extraction} any extracted value with a length of two
+characters or less was discarded, since such very short tokens are almost always
+spurious rather than real article numbers.
+
+These results answer RQ\,1.1: structured, pattern-conformant fields such as the
+document category and the article number can be captured reliably with rule-based
+extraction alone, without an LLM.  The narrative parts of the ticket, namely the
+problem, its cause, and the appropriate tags, do not follow a fixed pattern and
+therefore require the LLM, which is where the rest of the evaluation focuses.
 
 \subsection{LLM Tagging Profiles}
 \label{subsec:tagging-profiles}

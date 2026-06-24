@@ -42,12 +42,15 @@ provide significant value in automated triage and insight synthesis.
 
 \paragraph{RQ\,1.1: Which ticket information can be captured reliably with
 rule-based extraction, and which parts need LLMs?}
-The hybrid pipeline approach is strongly validated. Structured, pattern-conformant
-information~(machine serials, article numbers, RMA codes) is extracted with
-near-perfect F1 scores~(>0.95) using regular expressions. In contrast,
-narrative content such as problem summaries and semantic tags requires LLM
-reasoning, where model-based extraction significantly outperforms any
-potential rule-based approach.
+The hybrid pipeline approach is supported by the evidence.  Structured,
+pattern-conformant information such as the document category and the article
+number is extracted reliably with regular expressions, reaching an F1 around
+0.94 to 1.0 on the manually checked Belastungsanzeige sample.  The machine
+serial number, by contrast, is frequently absent from the source document and
+could not be treated as a reliable rule-based field.  Narrative content such as
+the problem, its cause, and the semantic tags does not follow a fixed pattern
+and therefore requires LLM reasoning, which is where rule-based methods fall
+short.
 
 \paragraph{RQ\,1.2: Which model produces the most useful and coherent insights
 on the benchmark tickets?}
@@ -66,31 +69,26 @@ efficiency matter more than raw parameter count in the 14B to 20B range.
 \section{Future Work}
 \label{sec:future-work}
 %
-\begin{enumerate}
-    \item \textbf{Fine-tuning.}  Fine-tuning a 7B to 14B model on the annotated
-          benchmark could close the gap with GPTOSS at significantly lower
-          inference cost.
+Several directions could build on the findings of this thesis.  One of the most
+promising is fine-tuning: training a 7B to 14B model on the annotated benchmark
+could close the gap with GPTOSS at significantly lower inference cost, making a
+locally hosted model competitive with the proprietary alternatives.  This is
+closely tied to enlarging the benchmark itself.  Extending it beyond the current
+250 tickets to a thousand or more, using model-assisted annotation with a human
+in the loop, would improve statistical reliability while keeping the manual
+effort manageable.  A complementary step would be a multi-annotator study, in
+which a subset of the benchmark is re-annotated by a second expert and the
+agreement is quantified with Cohen's~$\kappa$, giving a more robust evaluation
+baseline than the single-annotator self-agreement used here.
 
-    \item \textbf{Active learning annotation.}  Extending the benchmark to
-          1{,}000+ tickets using model-assisted annotation~(human-in-the-loop)
-          would improve statistical reliability and reduce annotation effort.
-
-    \item \textbf{Multi-annotator study.}  Re-annotating a subset of the
-          benchmark with a second expert and computing Cohen's~$\kappa$ would
-          provide a more robust evaluation baseline.
-
-    \item \textbf{Integration into the service system.}  Deploying the
-          extraction pipeline as a real-time enrichment service for incoming
-          tickets, with a confidence threshold below which a human reviewer
-          is notified, would test the system in a production setting.
-
-    \item \textbf{Multilingual prompting.}  Prompting in German to match the
-          input language may improve recall for smaller models that struggle
-          with cross-lingual instruction following.
-
-    \item \textbf{Structured prediction models.}  Replacing the free-text
-          generation step with constrained decoding~(e.g.\ grammar-based
-          sampling) would guarantee schema-valid JSON output and eliminate
-          the need for post-hoc repair parsing.
-\end{enumerate}
+Beyond strengthening the evaluation, the system could be moved closer to
+practice.  Deploying the extraction pipeline as a real-time enrichment service
+for incoming tickets, with a confidence threshold below which a human reviewer
+is notified, would test the approach under production conditions.  On the
+modelling side, prompting in German to match the dominant input language may
+improve recall for the smaller models that struggle with cross-lingual
+instruction following.  Finally, replacing the free-text generation step with
+constrained decoding, such as grammar-based sampling, would guarantee
+schema-valid JSON output and remove the need for the post-hoc repair parsing
+that the current pipeline relies on.
 

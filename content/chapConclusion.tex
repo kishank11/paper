@@ -33,8 +33,8 @@ LLM-as-judge rubric capturing tag usefulness and reasoning coherence.
 \paragraph{RQ\,1 (Main): Can LLMs be used to reliably extract structured insights
 from industrial service tickets?}
 The experiments confirm that LLMs are a viable tool for this task,
-\emph{provided the prompts are carefully designed}.  Models with sufficiently
-large context windows~($\geq$~128k tokens) and moderate temperatures can
+\emph{provided the prompts are carefully designed}.  Models with a
+128k-token context window and moderate temperatures can
 process full email threads and produce structured JSON outputs that match
 human annotations at an F1 level of up to 0.39 for zero-shot tagging.
 While fully replacing human annotation remains a challenge, the models
@@ -43,14 +43,13 @@ provide significant value in automated triage and insight synthesis.
 \paragraph{RQ\,1.1: Which ticket information can be captured reliably with
 rule-based extraction, and which parts need LLMs?}
 The hybrid pipeline approach is supported by the evidence.  Structured,
-pattern-conformant information such as the document category and the article
-number is extracted reliably with regular expressions, reaching an F1 around
-0.94 to 1.0 on the manually checked Belastungsanzeige sample.  The machine
-serial number, by contrast, is frequently absent from the source document and
-could not be treated as a reliable rule-based field.  Narrative content such as
-the problem, its cause, and the semantic tags does not follow a fixed pattern
-and therefore requires LLM reasoning, which is where rule-based methods fall
-short.
+pattern-conformant information such as the document category, the machine number,
+and the article number is extracted reliably with regular expressions, reaching
+an F1 around 0.94 to 1.0 on the manually checked Belastungsanzeige sample.  Where
+a machine number was not stated in the source document, it was recorded as such
+rather than guessed.  Narrative content such as the problem, its cause, and the
+semantic tags does not follow a fixed pattern and therefore requires LLM
+reasoning, which is where rule-based methods fall short.
 
 \paragraph{RQ\,1.2: Which model produces the most useful and coherent insights
 on the benchmark tickets?}

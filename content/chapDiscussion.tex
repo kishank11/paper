@@ -75,10 +75,10 @@ matter at least as much as raw parameter count for this type of task.
 \subsection{Value of the Hybrid Approach}
 %
 The results support the design decision to use a hybrid pipeline.  Structured
-fields extracted by regex~(the document category and the article number) are
-retrieved with high precision on the checked sample and require no LLM
-time.  Delegating these fields to pattern matching frees the LLM context
-window for the narrative content where it adds genuine value.  Applying an
+fields extracted by regex~(the document category, the machine number, and the
+article number) are retrieved with high precision on the checked sample and
+require no LLM time.  Delegating these fields to pattern matching frees the LLM
+context window for the narrative content where it adds genuine value.  Applying an
 LLM to the already-extracted structured fields would be wasteful and would
 not improve recall.
 

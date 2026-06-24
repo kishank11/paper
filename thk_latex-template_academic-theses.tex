@@ -20,7 +20,7 @@
 \makeglossaries
 %
 \input{glsdefs}
-\glsaddall
+\glsaddall[types={\acronymtype}]
 %
 \graphicspath{{images/}{figures/}}
 %
@@ -58,9 +58,7 @@
 \tableofcontents
 \listoftables
 \listoffigures
-\printglossary
 \printglossary[type=\acronymtype, title={List of Abbreviations}]
-\printglossary[type=symbols, title={List of Symbols}]
 %
 \cleardoublepage
 \KOMAoptions{open=right}
@@ -72,7 +70,7 @@
 \include{content/chapDiscussion}
 \include{content/chapConclusion}
 %
-\printbibliography[prenote=mynote]
+\printbibliography
 %
 \appendix
 \addchap{Appendix}

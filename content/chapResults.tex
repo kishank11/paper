@@ -55,7 +55,10 @@ the 250~benchmark tickets.
     \end{tabular}
 \end{table}
 
-The results reveal several noteworthy patterns.  First, proprietary models
+The results reveal several noteworthy patterns.  In what follows,
+\emph{over-tagging} refers to a model predicting tags that are not in the human
+ground truth~(which lowers precision), and \emph{under-tagging} refers to a
+model missing ground-truth tags~(which lowers recall).  First, proprietary models
 (GPT-5.4-mini, GPT-5.5, GPT-4o-mini) occupy the top three positions,
 followed by the open-source GPTOSS model at rank~4 with an F1 of~0.3562.
 Second, \texttt{gemma4} achieves the highest recall~(0.4951) among all

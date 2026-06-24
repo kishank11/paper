@@ -15,7 +15,7 @@ The function \texttt{call\_ollama()} wraps the Ollama \texttt{/api/generate}
 endpoint.  Inference parameters are fixed across all models: a 128k context
 window~(\texttt{num\_ctx~=~131072}) accommodates the longest email threads,
 \texttt{num\_predict~=~4096} provides a generous output budget, and
-\texttt{temperature~=~0.2} produces deterministic, schema-conformant JSON
+\texttt{temperature~=~0.7} balances determinism with the variation needed for tag generation
 output.
 
 \begin{verbatim}
@@ -37,7 +37,7 @@ def call_ollama(model_name: str, prompt: str) -> str | None:
                 "prompt": prompt,
                 "stream": False,
                 "options": {
-                    "temperature": 0.2,
+                    "temperature": 0.7,
                     "num_ctx":     131072,   # 128k input context
                     "num_predict": 4096,     # output token budget
                 },

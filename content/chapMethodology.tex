@@ -619,7 +619,7 @@ proprietary models accessed via the OpenAI API.
         \textbf{Short Name} & \textbf{Model} & \textbf{Source} & \textbf{Origin} \\
         \hline
         gptoss         & gpt-oss:20b          & Ollama  & OpenAI (USA) \\
-        gemma4         & gemma4:latest         & Ollama  & Google (USA) \\
+        gemma4         & gemma4:7b             & Ollama  & Google (USA) \\
         gemma7b        & gemma:7b              & Ollama  & Google (USA) \\
         llama3.1       & llama3.1:8b           & Ollama  & Meta (USA) \\
         llama3.2       & llama3.2:latest       & Ollama  & Meta (USA) \\
@@ -639,7 +639,7 @@ proprietary models accessed via the OpenAI API.
 
 Throughout this thesis, models are referred to by their Ollama identifier in
 typewriter font, which combines the model family, its version, and its
-parameter size, for example \texttt{gemma4:latest} or \texttt{deepseek-r1:14b}.
+parameter size, for example \texttt{gemma4:7b} or \texttt{deepseek-r1:14b}.
 Where the parameter size is given separately, it appears in parentheses, as in
 \texttt{gemma3 (12b)}.  It is important to note that the family version and the
 parameter size are independent: \texttt{gemma4} and \texttt{gemma3 (12b)} are
@@ -672,7 +672,7 @@ All prompts are written in English regardless of the ticket language.  The
 instruction to output in English is repeated explicitly to counteract
 the tendency of some models to mirror the input language.
 
-Inference parameters are fixed across all models: temperature~$= 0.2$,
+Inference parameters are fixed across all models: temperature~$= 0.7$,
 \texttt{num\_ctx}~$= 131{,}072$~tokens~(128k), \texttt{num\_predict}~$= 4{,}096$
 tokens.  These values ensure that even the longest email threads are fully
 ingested, while the output budget is generous enough to accommodate detailed
@@ -702,58 +702,3 @@ For each row in the 250-ticket benchmark CSV, the script:
 
 A one-second sleep is inserted between rows to reduce load on the GPU
 server~\texttt{ve-ds-nns-01:11434}.
-
-\subsection{Evaluation Protocol 1: Blind Tag Evaluation}
-\label{subsec:blind-eval}
-%
-In the blind tag evaluation the model receives only the raw ticket text and
-the extended tag taxonomy~(126~tags); it has no access to the human
-annotations.  The tags the model predicts are then compared against the
-28~human-defined ground-truth tags using token-level precision~$P$,
-recall~$R$, and the F1 score, which is the harmonic mean of precision and
-recall:
-
-\begin{equation}
-    F_1 = \frac{2 \cdot P \cdot R}{P + R}
-    \label{eq:f1}
-\end{equation}
-
-In Equation~\ref{eq:f1}, precision~$P$ is the proportion of the tags predicted
-by the model that also appear in the human ground truth, so it measures how
-many of the model's tags were correct.  Recall~$R$ is the proportion of the
-human ground-truth tags that the model successfully predicted, so it measures
-how many of the correct tags the model managed to find.  The F1 score~$F_1$
-combines the two into a single value between~0 and~1, where a higher value
-indicates a better balance between predicting correct tags and finding all of
-them.  Because the harmonic mean is used, a model can only achieve a high F1
-score if \emph{both} precision and recall are high; a model that scores well on
-one but poorly on the other is penalised.
-
-The evaluation is run separately for each category~(GS, BL, LB), and the
-macro-average F1 across the three categories serves as the primary ranking
-metric.  Two additional indicators are reported.  The \emph{over-tagging rate},
-defined as $1-P$, is the fraction of predicted tags that do not appear in the
-ground truth and therefore captures how often the model invents superfluous
-tags.  The \emph{under-tagging rate}, defined as $1-R$, is the fraction of
-ground-truth tags that the model failed to predict and therefore captures how
-often the model misses a relevant tag.
-
-\subsection{Evaluation Protocol 2: LLM-as-Judge}
-\label{subsec:judge-eval}
-%
-Because F1 penalises semantically equivalent but lexically different
-tags~\cite{zheng2024judging}, a second evaluation track uses GPT-4o as an
-automatic judge.  The judge receives the original ticket, the human
-annotations, and the model-generated output, then rates it on two
-1 to 5 Likert dimensions:
-
-\begin{description}
-    \item[\textbf{Tag Usefulness~(TU)}:] Do the generated tags meaningfully
-          describe the ticket, even if they differ from the human labels?
-    \item[\textbf{Reasoning Coherence~(RC)}:] Does the reasoning field
-          demonstrate a logical, accurate understanding of the ticket?
-\end{description}
-
-A composite judge score is defined as $J = (\overline{TU} + \overline{RC})/2$.
-Models are ranked separately by F1 and by $J$ to assess whether the two
-protocols converge on the same conclusions.

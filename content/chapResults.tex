@@ -154,17 +154,23 @@ Section~\ref{sec:disc-tags}.
 \label{sec:res-judge}
 %
 \subsection{Item Extraction Baseline}
-\label{subsec:item-extraction}
+\label{subsec:item-extraction-results}
 %
 As a complementary evaluation, GPT-5.5 was used as a judge to assess how
 well each model's extracted items (machine numbers, article numbers, etc.)
-match the ticket content.  The metric is \textit{Average Target Hit Rate}:
+match the ticket content.  GPT-5.5 was chosen as the judge for two reasons: it
+has a large vocabulary and strong reasoning ability, which suits the comparison
+of free-form extracted items, and it belongs to the same OpenAI model family as
+GPTOSS, the strongest open-source model in the benchmark, which keeps the judge
+independent of any single candidate while remaining a capable reference point.
+The full rationale is discussed in Section~\ref{sec:disc-judge-choice}.  The
+metric is \textit{Average Target Hit Rate}:
 the fraction of ground-truth items the model correctly identifies.
 
 \begin{table}[H]
     \centering
     \caption[Item extraction: average target hit rate]{Item extraction: average target hit rate (GPT-5.5 as baseline judge).}
-    \label{tab:item-extraction}
+    \label{tab:item-extraction-hitrate}
     \begin{tabular}{clc}
         \hline
         \textbf{Rank} & \textbf{Model} & \textbf{Avg Target Hit Rate} \\
@@ -180,10 +186,12 @@ the fraction of ground-truth items the model correctly identifies.
     \end{tabular}
 \end{table}
 
-Notably, three LLM models (GPT-5.4~MINI, GPT-4o~MINI, GPTOSS) outperform
-the human annotator at item extraction.  This suggests that LLMs can surface
-structured references (machine serials, article codes) that human annotators
-overlook when manually scanning long email threads.
+Three of the LLM configurations (GPT-5.4~MINI, GPT-4o~MINI, GPTOSS) outperform
+the human annotator at item extraction.  This is expected, since LLMs are
+reliably able to surface the structured references (machine serials, article
+codes) that are scattered through long and complex Markdown files such as those
+converted from MSG email threads, where a human annotator can easily overlook a
+number buried deep in a reply chain.
 
 \subsection{Tag Usefulness and Reasoning Quality}
 \label{subsec:judge-composite}

@@ -92,6 +92,40 @@ a model that generates semantically correct tags with different surface forms
 is rated higher by the judge than by F1, which is a known limitation of
 token-level F1 for multi-label text classification~\cite{tsoumakas2007multilabel}.
 
+\subsection{Choice of the Judge Model}
+\label{sec:disc-judge-choice}
+%
+GPT-5.5 was selected as the LLM-as-judge for the item-extraction and tag-quality
+evaluations.  Two considerations motivated this choice.  First, judging the
+quality of free-form extracted items and semantic tags requires a model with a
+broad vocabulary and strong reasoning ability, so that semantically equivalent
+but lexically different answers are recognised as correct rather than penalised;
+GPT-5.5 is among the most capable models available for this role.  Second, the
+strongest open-source model in the benchmark, GPTOSS, originates from the same
+provider~(OpenAI) as GPT-5.5.  Using a judge from the same lineage as the leading
+open-source candidate provides a consistent and capable reference point, while
+the judge itself was not one of the ranked candidates, which avoids a model
+scoring its own output.  A known risk of LLM-as-judge evaluation is a bias
+towards outputs that resemble the judge's own style~\cite{zheng2024judging};
+this is acknowledged as a limitation and is the reason the judge results are
+reported alongside, rather than instead of, the token-level F1 scores.
+
+\subsection{Uniqueness of Generated Tags}
+\label{sec:disc-tag-uniqueness}
+%
+The tagging profiles in the results show that, even without any instruction on
+how many tags to produce, the models converge on roughly eight tags per ticket
+but differ enormously in how many \emph{distinct} tags they use across the
+corpus.  A small unique-tag vocabulary, as produced by \texttt{qwen2.5},
+indicates that the model reuses a stable set of labels, whereas a very large
+unique-tag count, as produced by \texttt{deepseek-r1~(7b)}, indicates that the
+model keeps inventing new ad hoc labels for similar situations.  From the
+perspective of a practical tagging system, a moderate and stable vocabulary is
+preferable: it keeps the tag space interpretable and makes downstream filtering
+and aggregation possible.  This behavioural difference, rather than raw F1 alone,
+is what motivated the consolidation of the model-generated tags into the curated
+126-tag taxonomy, so that the final label set is both expressive and consistent.
+
 \subsection{Prompt Engineering Impact}
 %
 The two-call protocol~(extraction call followed by a separate tagging call)

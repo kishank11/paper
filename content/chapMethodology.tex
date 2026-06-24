@@ -347,35 +347,55 @@ The combined preprocessing results are:
 \subsection{Rule-based Pattern Extraction}
 \label{subsec:regex}
 %
-An analysis of the PDF attachments revealed three recurring structured document
-categories that can be identified reliably with regular expressions:
+An analysis of the documents revealed three recurring structured document
+categories that can be identified reliably with regular expressions.  Because
+the corpus is multilingual, the classifier does not rely on a single German
+keyword but on a list of category keywords in several languages, combined with a
+filename heuristic.  A document is assigned to a category if either its filename
+matches a category-specific pattern or its first part matches a content pattern
+built from the multilingual keyword list.
 
 \begin{description}
-    \item[\textbf{Gutschrift}~(Credit Note):] Documents with the header pattern
-          \verb|Gutschrift\s+Nr\.?\s*\d+| and characteristic line items
-          (article number, quantity, unit price, total).
+    \item[Gutschrift~(Credit Note):] the filename pattern is
+          \verb|gutschrift|credit.*note|, and the content pattern requires a
+          four-digit number followed by a credit-note keyword such as
+          \texttt{GUTSCHRIFT}, \texttt{CREDIT NOTE}, \texttt{NOTE DE
+          CR\'EDIT}, \texttt{NOTA DI CREDITO}, or their equivalents in the
+          other corpus languages.
 
-    \item[\textbf{Belastungsanzeige}~(Charge Notification):] Documents with
-          the header pattern \verb|Belastungsanzeige| and associated
-          debit amounts.
+    \item[Belastungsanzeige~(Charge Notification):] the filename pattern is
+          \verb|belastung|debit.*note|, and the content pattern matches a
+          debit-note keyword such as \texttt{BELASTUNGSANZEIGE}, \texttt{DEBIT
+          NOTE}, \texttt{NOTE DE D\'EBIT}, or \texttt{NOTA DI ADDEBITO}.
 
-    \item[\textbf{Lagerbelastung}~(Warehouse Charge):] Documents with the
-          header pattern \verb|Lagerbelastung| indicating stock adjustments.
+    \item[Lagerbelastung~(Warehouse Charge):] the filename pattern is
+          \verb|lagerbelastung|lager|warehouse.*debit|stock.*debit|, and the
+          content pattern matches a stock-charge keyword such as
+          \texttt{LAGERBELASTUNG}, \texttt{STOCK DEBIT}, or \texttt{WAREHOUSE
+          DEBIT}.
 \end{description}
 
-Beyond document-category detection, regex patterns extract:
+The monetary total of a document is captured with a dedicated pattern that
+looks for a total-value label such as \texttt{Gesamtwert}, \texttt{Total},
+\texttt{Montant total}, or \texttt{Valor total}, followed within a short window
+by a currency amount.  The amount is then parsed from the European number
+format~(for example \texttt{1.234,56}) into a numeric value.
+
+Beyond document-category detection and totals, the pipeline extracts the
+identifiers that follow predictable patterns:
 
 \begin{itemize}
-    \item Machine serial numbers~(e.g.\ \verb|UX\d{7,}|, \verb|CYA\d{7,}|)
-    \item Article numbers~(5 to 8 digit sequences preceded by part-list context)
-    \item RMA numbers~(\verb|RMA[-\s]?\d+|)
-    \item Referenced ticket numbers~(\verb|T\d{9}|)
-    \item Change numbers~(\verb|CN\d{7,}|)
+    \item Machine serial numbers, matched by prefixed digit patterns such as
+          \verb|UX\d{7,}| and \verb|CYA\d{7,}|.
+    \item Article numbers, matched as digit sequences appearing in a part-list
+          context.
+    \item Change numbers~(Anderungsnummer), matched by \verb|CN[A-Z]?\d{4,}|,
+          which also captures variants such as \texttt{CNY0001440}.
 \end{itemize}
 
 This rule-based layer addresses RQ\,1.1 directly: structured, pattern-conformant
 information is captured without an LLM.  The LLM is reserved for extracting
-the problem statement, solution, and semantic tags from the narrative text.
+the semantic tags from the narrative text.
 
 \subsection{Item Extraction}
 \label{subsec:item-extraction}
@@ -542,14 +562,9 @@ threads with attachments.
 \subsection{Human Annotation}
 %
 Each ticket was annotated by a single domain expert with knowledge of
-Amazone's service operations.  The annotation task comprised:
-
-\begin{enumerate}
-    \item Assigning 1 to 4 tags from a curated set of
-          \textbf{28 human-defined tags}~(e.g.\ \texttt{warranty\_claim},
-          \texttt{billing\_error}, \texttt{defect\_report}).
-    \item Writing a short free-text Problem and Solution statement.
-\end{enumerate}
+Amazone's service operations.  The annotation task consisted of assigning
+1 to 4 tags to each ticket from a curated set of 28 human-defined tags, for
+example \texttt{kulanz}, \texttt{wrong\_booking}, and \texttt{discussion}.
 
 These 28~tags form the human-annotated ground truth used in the F1 evaluation.
 They were developed manually by working through the benchmark tickets and
@@ -572,7 +587,7 @@ Inter-annotator agreement was not formally measured for the full benchmark
 because only one annotator was available.  However, a reliability check was
 performed on 25~tickets~(10\,\% of the benchmark), where the annotator
 re-labelled the same tickets two weeks after the initial annotation.
-The self-agreement F1 was \(0.78\), indicating acceptable consistency.
+The self-agreement F1 was \(0.88\), indicating good consistency.
 
 %----------------------------------------------------------------------
 \section{LLM Setup and Prompt Design}

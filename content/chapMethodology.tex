@@ -185,9 +185,16 @@ extraction unreliable.
 \end{figure}
 
 Motivated by this failure, four alternative libraries were evaluated on a test
-set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung, 5~Belastungsanzeige).  A tool
-scores one point per PDF where \emph{all} expected fields are correctly
-extracted.  Table~\ref{tab:tool-comparison} summarises the results.
+set of 15~PDFs (5~Gutschrift, 5~Lagerbelastung, 5~Belastungsanzeige).  Before
+presenting the comparison, it is worth briefly introducing these tools.  Tabula
+is an open-source library specialised in detecting and extracting tables from
+PDF documents.  Docling is an open-source document-conversion toolkit from IBM
+that parses a PDF into a structured representation and exports it to Markdown or
+JSON.  Spire.PDF is a commercial library for reading and manipulating PDF files,
+including text and table extraction.  PyMuPDF4LLM is a wrapper around the PyMuPDF
+engine that converts PDF pages to Markdown in a form intended for large language
+model input.  A tool scores one point per PDF where \emph{all} expected fields
+are correctly extracted.  Table~\ref{tab:tool-comparison} summarises the results.
 
 \begin{table}[H]
     \centering
@@ -209,26 +216,26 @@ extracted.  Table~\ref{tab:tool-comparison} summarises the results.
 Each tool exhibited a characteristic failure mode:
 
 \begin{itemize}
-    \item \textbf{Tabula (6/15).}  Tabula is specialised for table extraction
+    \item Tabula (6/15).  Tabula is specialised for table extraction
           and performed well \emph{only} on the tabular regions of a document.
           As shown in Figure~\ref{fig:tool-tabula}, it correctly reconstructs
           the key-value table~(Lieferschein-Nr., LS-Datum, Auftrag~Nr.) but
           populates many cells with \texttt{nan} and ignores all
           non-tabular text, so most documents were only partially captured.
 
-    \item \textbf{Docling (11/15).}  Docling produced output that was often
+    \item Docling (11/15).  Docling produced output that was often
           similar to the unstructured MarkItDown result.  As shown in
           Figure~\ref{fig:tool-docling}, when configured for table extraction
           it linearised the fields into separate lines and, on the 5~test PDFs
           checked specifically for table fidelity, it missed the tables in CSV
           form.
 
-    \item \textbf{Spire (11/15).}  Spire matched Docling's score but, like
+    \item Spire (11/15).  Spire matched Docling's score but, like
           MarkItDown, frequently returned a flat, unstructured stream of
           values~(Figure~\ref{fig:tool-spire}).  It is also a commercial,
           paid library.
 
-    \item \textbf{PyMuPDF4LLM (15/15).}  PyMuPDF4LLM~\cite{pymupdf4llm} was the
+    \item PyMuPDF4LLM (15/15).  PyMuPDF4LLM~\cite{pymupdf4llm} was the
           only tool to achieve a perfect score across all three document
           categories.  As shown in Figure~\ref{fig:tool-pymupdf4llm}, it
           preserves both the header block and the tabular structure as proper
@@ -302,6 +309,17 @@ and removed automatically:
         \hline
     \end{tabular}
 \end{table}
+
+\noindent
+The pattern names in Table~\ref{tab:boilerplate} refer to recurring blocks of
+text that were observed repeatedly across the corpus and carry no
+ticket-specific information.  For example, the \emph{KG Legal Footer} is the
+standard company legal footer (the firm's full legal name and registration
+details) that appears at the bottom of almost every document, the \emph{Bank
+Details Block} is the recurring bank-account section, and the \emph{AMAZONE
+Postal Header} is the fixed sender address line.  These blocks were identified
+by inspecting the most frequent repeated text segments in the benchmark data and
+were removed automatically so that they do not consume context or add noise.
 
 The combined preprocessing results are:
 
@@ -385,7 +403,7 @@ engineering change.
     \label{tab:item-extraction}
     \begin{tabular}{lrrrr}
         \hline
-        \textbf{Category} & \textbf{Articles} & \textbf{Unique} & \textbf{CN total} & \textbf{CN unique} \\
+        \textbf{Category} & \textbf{Articles} & \textbf{Unique articles} & \textbf{CN total} & \textbf{CN unique} \\
         \hline
         Gutschrift        & 327{,}763 & 18{,}101 & 1{,}775 & 623 \\
         Belastungsanzeige &   4{,}868 &  1{,}537 & 3{,}288 & 934 \\
